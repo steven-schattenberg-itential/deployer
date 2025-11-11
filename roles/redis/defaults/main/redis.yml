@@ -19,6 +19,12 @@ redis_db_filename: dump.rdb
 # The location of the Redis data directory
 redis_data_dir: "{{ redis_data_dir_default }}"
 
+# The location of the Redis TLS files
+redis_tls_dir: "{{ redis_conf_dir }}/ssl"
+redis_tls_key_file: "{{ redis_tls_dir }}/redis.key"
+redis_tls_cert_file: "{{ redis_tls_dir }}/redis.crt"
+redis_tls_ca_file: "{{ redis_tls_dir }}/ca.crt"
+
 # Redis user and group
 redis_owner: redis
 redis_group: redis

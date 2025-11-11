@@ -31,6 +31,9 @@ platform_webserver_https_passphrase:
 # The path to the certificate file used for HTTPS connections.
 platform_webserver_https_cert: "{{ platform_tls_dir }}/certs/server.crt"
 
+# The path to the certificate file used for HTTPS connections.
+platform_webserver_https_cacert: "{{ platform_tls_dir }}/certs/ca.crt"
+
 # The set of allowed SSL/TLS protocol versions.
 platform_webserver_https_secure_protocol: TLSv1_2_method
 

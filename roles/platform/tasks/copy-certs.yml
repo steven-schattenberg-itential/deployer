@@ -36,6 +36,14 @@
         owner: root
         group: root
 
+    - name: Put the HTTPS CA cert file in the correct location
+      ansible.builtin.copy:
+        src: "{{ platform_cafile_source }}"
+        dest: "{{ platform_webserver_https_cacert }}"
+        mode: "0400"
+        owner: root
+        group: root
+
 - name: Copy MongoDB root CA file to the appropriate location
   ansible.builtin.copy:
     src: "{{ platform_mongodb_root_ca_file_source }}"

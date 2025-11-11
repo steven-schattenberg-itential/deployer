@@ -15,7 +15,7 @@
     dest: "{{ redis_conf_file }}"
     owner: "{{ redis_owner }}"
     group: "{{ redis_group }}"
-    mode: "0640"
+    mode: "0644"
     setype: redis_conf_t
     backup: true
   tags: configure_redis
@@ -26,4 +26,30 @@
     dest: /etc/logrotate.d/redis
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
+
+- name: Configure Redis TLS
+  when: redis_tls_enabled | bool
+  block:
+
+    - name: Ensure directory for TLS certificates
+      ansible.builtin.file:
+        path: "{{ redis_tls_dir }}"
+        state: directory
+        owner: "{{ redis_owner }}"
+        group: "{{ redis_group }}"
+        mode: "0755"
+
+    ### TODO: How do the files get there???
+
+    - name: Set permissions on existing TLS files
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        owner: "{{ redis_owner }}"
+        group: "{{ redis_group }}"
+        mode: "{{ item.mode }}"
+        state: file
+      loop:
+        - { path: "{{ redis_tls_cert_file }}", mode: '0644' }
+        - { path: "{{ redis_tls_ca_file }}", mode: '0644' }
+        - { path: "{{ redis_tls_key_file }}", mode: '0600' }

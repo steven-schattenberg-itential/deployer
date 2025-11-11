@@ -94,6 +94,14 @@
     - name: Make Redis
       community.general.make:
         chdir: "{{ redis_build_dir }}"
+        params:
+          BUILD_TLS: true
+          PREFIX: "{{ redis_bin_dir | dirname }}"
+      tags: make_redis
+
+    - name: Make Install Redis
+      community.general.make:
+        chdir: "{{ redis_build_dir }}"
         target: install
         params:
           USE_SYSTEMD: true

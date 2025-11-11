@@ -84,7 +84,7 @@
     path: "{{ redis_log_dir }}"
     owner: "{{ redis_owner }}"
     group: "{{ redis_group }}"
-    mode: "0755"
+    mode: "0775"
     seuser: system_u
     serole: object_r
     setype: redis_log_t
@@ -96,7 +96,7 @@
     state: directory
     owner: "{{ redis_owner }}"
     group: "{{ redis_group }}"
-    mode: "0750"
+    mode: "0775"
     seuser: system_u
     serole: object_r
     setype: redis_conf_t

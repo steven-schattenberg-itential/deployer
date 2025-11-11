@@ -153,15 +153,25 @@ tcp-keepalive 300
 # directive can be used to define TLS-listening ports. To enable TLS on the
 # default port, use:
 #
+{% if redis_tls_enabled | bool %}
+port 0
+tls-port {{ redis_port }}
+{% else %}
 # port 0
 # tls-port 6379
+{% endif %}
 
 # Configure a X.509 certificate and private key to use for authenticating the
 # server to connected clients, masters or cluster peers.  These files should be
 # PEM formatted.
 #
+{% if redis_tls_enabled | bool %}
+tls-cert-file {{ redis_tls_cert_file }}
+tls-key-file {{ redis_tls_key_file }}
+{% else %}
 # tls-cert-file redis.crt
 # tls-key-file redis.key
+{% endif %}
 #
 # If the key file is encrypted using a passphrase, it can be included here
 # as well.
@@ -195,8 +205,12 @@ tcp-keepalive 300
 # clients and peers.  Redis requires an explicit configuration of at least one
 # of these, and will not implicitly use the system wide configuration.
 #
+{% if redis_tls_enabled | bool %}
+tls-ca-cert-file {{ redis_tls_ca_file }}
+{% else %}
 # tls-ca-cert-file ca.crt
 # tls-ca-cert-dir /etc/ssl/certs
+{% endif %}
 
 # By default, clients (including replica servers) on a TLS port are required
 # to authenticate using valid client side certificates.
@@ -205,6 +219,9 @@ tcp-keepalive 300
 # If "optional" is specified, client certificates are accepted and must be
 # valid if provided, but are not required.
 #
+{% if redis_tls_enabled | bool %}
+tls-auth-clients optional
+{% endif %}
 # tls-auth-clients no
 # tls-auth-clients optional
 
@@ -213,7 +230,11 @@ tcp-keepalive 300
 #
 # Use the following directive to enable TLS on replication links.
 #
+{% if redis_tls_enabled | bool and redis_replication_enabled | bool %}
+tls-replication yes
+{% else %}
 # tls-replication yes
+{% endif %}
 
 # By default, the Redis Cluster bus uses a plain TCP connection. To enable
 # TLS for the bus protocol, use the following directive:
@@ -227,7 +248,11 @@ tcp-keepalive 300
 # "TLSv1.3" (OpenSSL >= 1.1.1) or any combination.
 # To enable only TLSv1.2 and TLSv1.3, use:
 #
+{% if redis_tls_enabled | bool %}
+tls-protocols "TLSv1.2 TLSv1.3"
+{% else %}
 # tls-protocols "TLSv1.2 TLSv1.3"
+{% endif %}
 
 # Configure allowed ciphers.  See the ciphers(1ssl) manpage for more information
 # about the syntax of this string.
