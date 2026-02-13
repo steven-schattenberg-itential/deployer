@@ -127,19 +127,19 @@
     msg: "{{ host_info }}"
 
 # Check for proxy
-- name: Check environment variables
+- name: Check for proxy settings in environment variables
   ansible.builtin.shell: set -o pipefail && env | grep -i proxy
   register: env_proxy
   failed_when: false
   changed_when: false
 
-- name: Check /etc/environment
+- name: Check for proxy settings in /etc/environment
   ansible.builtin.shell: set -o pipefail && grep -i proxy /etc/environment
   register: etc_env_proxy
   failed_when: false
   changed_when: false
 
-- name: Check /etc/profile.d for proxy configs
+- name: Check for proxy settings in /etc/profile.d
   ansible.builtin.shell: set -o pipefail && grep -ri proxy /etc/profile.d/
   register: profiled_proxy
   failed_when: false
