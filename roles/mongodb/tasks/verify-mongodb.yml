@@ -17,3 +17,5 @@
   vars:
     component_name: "MongoDB"
     hw_specs_var_name: "mongodb_hw_specs"
+
+# mongodb specific verification tasks go here...
