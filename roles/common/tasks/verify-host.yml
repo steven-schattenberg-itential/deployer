@@ -127,32 +127,41 @@
     msg: "{{ host_info }}"
 
 # Check for proxy
-- name: Check multiple proxy locations
-  block:
-    - name: Check environment variables
-      ansible.builtin.shell: set -o pipefail && env | grep -i proxy
-      register: env_proxy
-      failed_when: false
-      changed_when: false
+- name: Check environment variables
+  ansible.builtin.shell: set -o pipefail && env | grep -i proxy
+  register: env_proxy
+  failed_when: false
+  changed_when: false
 
-    - name: Check /etc/environment
-      ansible.builtin.shell: set -o pipefail && grep -i proxy /etc/environment
-      register: etc_env_proxy
-      failed_when: false
-      changed_when: false
+- name: Check /etc/environment
+  ansible.builtin.shell: set -o pipefail && grep -i proxy /etc/environment
+  register: etc_env_proxy
+  failed_when: false
+  changed_when: false
 
-    - name: Check /etc/profile.d for proxy configs
-      ansible.builtin.shell: set -o pipefail && grep -ri proxy /etc/profile.d/
-      register: profiled_proxy
-      failed_when: false
-      changed_when: false
+- name: Check /etc/profile.d for proxy configs
+  ansible.builtin.shell: set -o pipefail && grep -ri proxy /etc/profile.d/
+  register: profiled_proxy
+  failed_when: false
+  changed_when: false
 
-    - name: Display all proxy findings
-      ansible.builtin.debug:
-        msg:
-          - "Environment variables: {{ env_proxy.stdout_lines | default([]) }}"
-          - "/etc/environment: {{ etc_env_proxy.stdout_lines | default([]) }}"
-          - "/etc/profile.d: {{ profiled_proxy.stdout_lines | default([]) }}"
+- name: Display all proxy findings
+  ansible.builtin.debug:
+    msg:
+      - "Environment variables: {{ env_proxy.stdout_lines | default([]) }}"
+      - "/etc/environment: {{ etc_env_proxy.stdout_lines | default([]) }}"
+      - "/etc/profile.d: {{ profiled_proxy.stdout_lines | default([]) }}"
+
+- name: Assert that there are no proxy settings
+  ansible.builtin.assert:
+    that:
+      - env_proxy.stdout_lines | length == 0
+      - etc_env_proxy.stdout_lines | length == 0
+      - profiled_proxy.stdout_lines | length == 0
+    fail_msg: "A Proxy was detected!"
+    quiet: true
+  ignore_errors: true
+  register: proxy_validation
 
 # Display results
 - name: Display failed validation results
@@ -167,5 +176,6 @@
       - "cpu_validation is not failed"
       - "memory_validation is not failed"
       - "disk_validation is not failed"
+      - "proxy_validation is not failed"
     fail_msg: "See above, assertions not passed! ✗"
     success_msg: "All assertions passed! ✓"
