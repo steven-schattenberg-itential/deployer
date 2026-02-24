@@ -36,8 +36,8 @@
 7. [Component Guides](#component-guides)
     1. [MongoDB](#mongodb)
     2. [Redis](#redis)
-    4. [Itential Platform](#itential-platform)
-    5. [Itential Gateway](#itential-gateway)
+    3. [Itential Platform](#itential-platform)
+    4. [Itential Gateway](#itential-gateway)
 8. [Patching Itential Platform and IAG](#patching-itential-platform-and-iag)
 9. [Using Internal YUM Repositories](#using-internal-yum-repositories)
 10. [Running the Deployer in Offline Mode](#running-the-deployer-in-offline-mode)
@@ -397,16 +397,16 @@ The deployer includes a playbook that can be used to confirm the environment is 
 
 ```bash
 # Verify everything
-ansible-playbook -i <path-to-inventory> playbooks/verify.yml
+ansible-playbook -i <path-to-inventory> itential.deployer.verify
 
 # Verify Redis
-ansible-playbook -i <path-to-inventory> playbooks/verify_redis.yml
+ansible-playbook -i <path-to-inventory> itential.deployer.verify_redis
 
 # Verify MongoDB
-ansible-playbook -i <path-to-inventory> playbooks/verify_mongodb.yml
+ansible-playbook -i <path-to-inventory> itential.deployer.verify_mongodb
 
 # Verify Platform
-ansible-playbook -i <path-to-inventory> playbooks/verify_platform.yml
+ansible-playbook -i <path-to-inventory> itential.deployer.verify_platform
 ```
 
 **&#9432; Note:**
@@ -567,7 +567,7 @@ all:
   vars:
     platform_release: 6
     # Declare the purpose of the environment to help the verification stage check resources.
-    # Possible values: "dev", "test", "production"
+    # Possible values: "dev", "test", "prod"
     env: dev
 
   children:
@@ -620,16 +620,16 @@ documentation purposes. Run this playbook after installation to certify an insta
 
 ```bash
 # Certify everything
-ansible-playbook -i <path-to-inventory> playbooks/certify.yml
+ansible-playbook -i <path-to-inventory> itential.deployer.certify
 
 # Certify Redis
-ansible-playbook -i <path-to-inventory> playbooks/certify_redis.yml
+ansible-playbook -i <path-to-inventory> itential.deployer.certify_redis
 
 # Certify MongoDB
-ansible-playbook -i <path-to-inventory> playbooks/certify_mongodb.yml
+ansible-playbook -i <path-to-inventory> itential.deployer.certify_mongodb
 
 # Certify Platform
-ansible-playbook -i <path-to-inventory> playbooks/certify_platform.yml
+ansible-playbook -i <path-to-inventory> itential.deployer.certify_platform
 ```
 
 This will generate markdown files one per host that contain rich detail about what was done during
@@ -760,7 +760,7 @@ all:
   vars:
     platform_release: 6
     # Declare the purpose of the environment to help the verification stage check resources.
-    # Possible values: "dev", "test", "production"
+    # Possible values: "dev", "test", "prod"
     env: dev
 
   children:
@@ -799,7 +799,7 @@ all:
   vars:
     platform_release: 6
     # Declare the purpose of the environment to help the verification stage check resources.
-    # Possible values: "dev", "test", "production"
+    # Possible values: "dev", "test", "prod"
     env: dev
 
   children:
@@ -842,7 +842,7 @@ all:
   vars:
     platform_release: 6
     # Declare the purpose of the environment to help the verification stage check resources.
-    # Possible values: "dev", "test", "production"
+    # Possible values: "dev", "test", "prod"
     env: dev
 
   children:
@@ -908,7 +908,7 @@ all:
   vars:
     platform_release: 6
     # Declare the purpose of the environment to help the verification stage check resources.
-    # Possible values: "dev", "test", "production"
+    # Possible values: "dev", "test", "prod"
     env: dev
   children:
     platform:
@@ -928,11 +928,11 @@ all:
         platform_redis_password: <super-secret-password>
         # Or if connecting to Redis Sentinel
         # platform_redis_sentinels:
-        #   - host: redis1.host.com
+        #   - host: redis-sentinel1.host.com
         #     port: 26379
-        #   - host: redis2.host.com
+        #   - host: redis-sentinel2.host.com
         #     port: 26379
-        #   - host: redis3.host.com
+        #   - host: redis-sentinel3.host.com
         #     port: 26379
     gateway:
       hosts:
@@ -951,7 +951,7 @@ all:
   vars:
     platform_release: 6
     # Declare the purpose of the environment to help the verification stage check resources.
-    # Possible values: "dev", "test", "production"
+    # Possible values: "dev", "test", "prod"
     env: dev
 
   children:
