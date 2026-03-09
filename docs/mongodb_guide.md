@@ -91,8 +91,20 @@ The following table contains the most commonly overridden variables.
 | `mongodb_itential_db_name` | String | The name of the itential database. | `itential` |
 | `mongodb_replication_enabled` | Boolean | Flag to enable MongoDB replication | `false` |
 | `mongodb_replset_name` | String | The MongoDB replica set name. | `rs0` |
-| `mongodb_ssl_root_dir` | String | The base directory for SSL certs and key files. | `/etc/ssl/certs` |
-| `mongodb_tls_enabled` | Boolean | Flag to enable MongoDB TLS. | `false` |
+| `mongodb_tls_enabled` | Boolean | Flag to enable MongoDB TLS. | `true` |
+| `mongodb_tls_copy_certs` | Boolean | Flag to manage PKI infrastructure (create directories and copy certificates). | `true` |
+| `mongodb_pki_base_dir` | String | The base directory for PKI certificates and keys. | `/etc/pki/mongodb` |
+| `mongodb_pki_private_subdir` | String | Subdirectory name for private keys. | `private` |
+| `mongodb_pki_private_dir` | String | Full path to private keys directory. | `{{ mongodb_pki_base_dir }}/{{ mongodb_pki_private_subdir }}` |
+| `mongodb_tls_server_cert_file` | String | Server certificate filename (combined cert+key). | `{{ inventory_hostname }}.pem` |
+| `mongodb_tls_ca_file` | String | CA certificate bundle filename. | `ca-bundle.crt` |
+| `mongodb_auth_key_file` | String | Replica set authentication keyfile. | `replica.key` |
+| `mongodb_pki_src_dir` | String | Source directory for certificates (on Ansible controller). | MUST be set in inventory |
+| `mongodb_tls_cert_src` | String | Full source path for TLS server certificate on controller. | `{{ mongodb_pki_src_dir }}/{{ mongodb_tls_server_cert_file }}` |
+| `mongodb_tls_ca_src` | String | Full source path for CA certificate on controller. | `{{ mongodb_pki_src_dir }}/{{ mongodb_tls_ca_file }}` |
+| `mongodb_tls_cert_dest` | String | Full destination path for TLS server certificate. | `{{ mongodb_pki_base_dir }}/{{ mongodb_tls_server_cert_file }}` |
+| `mongodb_tls_ca_dest` | String | Full destination path for CA certificate. | `{{ mongodb_pki_base_dir }}/{{ mongodb_tls_ca_file }}` |
+| `mongodb_auth_key_dest` | String | Full destination path for replica set keyfile. | `{{ mongodb_pki_private_dir }}/{{ mongodb_auth_key_file }}` |
 | `mongodb_user_admin_password` | String | The MongoDB admin user password. | `admin` |
 | `mongodb_user_itential_password` | String | The MongoDB itential user password. | `itential` |
 
@@ -108,6 +120,7 @@ These variables can be used to override the default version of MongoDB that is i
 | :------- | :--- | :---------- | :------------ |
 | `mongodb_packages` | List(String) | The list of MongoDB yum package names to install. | |
 | `mongodb_version` | Float | The MongoDB major version being installed. | Depends on `platform_release` |
+| `mongodb_python_packages` | List(String) | The list of Python packages to install. | Depends on `platform_release` |
 
 These variables effect how and where MongoDB is installed. In most cases, these should not be
 modified.
@@ -130,8 +143,11 @@ These variables apply to advanced situations.
 | :------- | :--- | :---------- | :------------ |
 | `mongodb_python_executable` | String | The location of the python executable used by the Community.mongodb ansible tasks. | `/usr/bin/python3` |
 | `mongodb_pip_executable` | String | The location of the pip executable used by the Community.mongodb ansible tasks. | `/usr/bin/pip3` |
+| `mongodb_python_base_dependencies` | List(String) | Base Python dependencies for MongoDB management. | `[pip]` |
+| `mongodb_python_app_dependencies` | List(String) | Application Python dependencies for MongoDB. | `[pymongo]` |
 | `mongodb_python_venv_root` | String | The location of the virtual environment used by the Community.mongodb collection. | `/var/tmp` |
 | `mongodb_python_venv_name` | String | The name of the Python virtual environment used by this deployer. | `mongodb_venv` |
+| `mongodb_python_venv` | String | Full path to Python virtual environment. | `/var/tmp/mongodb_venv` |
 | `mongodb_bind_ipv6` | Boolean | Flag to enable binding to IPv6. | `true` |
 | `mongodb_bind_addrs` | String | The hostnames and/or IP addresses and/or full Unix domain socket paths on which mongos or mongod should listen for client connections. You may attach mongos or mongod to any interface. To bind to multiple addresses, enter a list of comma-separated values. The inventory_hostname will be automatically added to `mongodb_bind_addrs`.  If `mongodb_bind_ipv6` is set to true, '::1' will be added to `mongodb_bind_addrs`. | `127.0.0.1` |
 | `mongodb_mongod_service_retries` | Integer | The number of retries when starting the mongod service. | 5 |
@@ -144,12 +160,38 @@ These variables apply to advanced situations.
 | `mongodb_vm_zone_reclaim_mode` | Integer | Controls whether the kernel reclaims memory from local zones before allocating from remote NUMA nodes. | 0 |
 | `mongodb_vm_swappiness` | Integer | Balances between swapping out anonymous pages (process memory) versus dropping page cache (file system buffers). | 1 |
 | `mongodb_vm_max_map_count` | Integer | Maximum number of memory map areas (virtual memory areas/VMAs) a process can create. | 262144 |
+| `mongodb_certify_report_dir_remote` | String | Remote directory for certification reports. | `/var/tmp/itential-reports/mongodb` |
+| `mongodb_certify_report_dir_local` | String | Local directory for certification reports. | `/tmp/itential-reports/mongodb` |
 
 ## Configuring TLS
 
-The `mongodb` role does not generate SSL certificates.  They must be generated by the user and put
-in the top level `files` directory on the Ansible control node. These files are uploaded to the
-location defined in `mongodb_ssl_root_dir`.
+The `mongodb` role does not generate TLS certificates. Certificates must be generated by the user and organized in a per-server directory structure.
+
+### Certificate Requirements
+
+Each MongoDB server requires:
+- **Server certificate**: `{{ inventory_hostname }}.pem` (combined certificate + private key in PEM format)
+- **CA certificate**: `ca-bundle.crt` (Certificate Authority bundle)
+- **Replica keyfile**: `replica.key` (for replica set authentication)
+
+### Certificate Organization
+
+Certificates should be organized per server on the Ansible controller:
+
+├─ <path/to/local/mongodb/certs>
+│   ├─ ca-bundle.crt
+│   ├─ hostname1.pem
+│   ├─ hostname2.pem
+│   ├─ hostname3.pem
+│   ├─ replica.key
+
+### Deployed Certificate Locations
+
+Certificates are deployed to:
+- **Base directory**: `/etc/pki/mongodb/`
+- **Server cert**: `/etc/pki/mongodb/{{ inventory_hostname }}.pem`
+- **CA bundle**: `/etc/pki/mongodb/ca-bundle.crt`
+- **Replica keyfile**: `/etc/pki/mongodb/private/replica.key`
 
 ## SELinux
 
