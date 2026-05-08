@@ -99,15 +99,15 @@ After the calculation, the value is converted to **bytes**, since Redis expects 
 For a system with **10 GB of RAM**:
 
 * system ram = 10240 MB
-* redis max memory ratio = 0.60
+* redis max memory ratio = 0.80
 
-The calculation becomes: 10240 × 0.60 = 6144 MB
+The calculation becomes: 10240 × 0.80 = 8192 MB
 
-Converted to bytes: 6144 x 1024 x 1024 = 6442450944 bytes
+Converted to bytes: 8192 x 1024 x 1024 = 8589934592 bytes
 
 This value will be written to the Redis configuration as:
 
-`maxmemory 6442450944`
+`maxmemory 8589934592`
 
 ### Manual Override
 
