@@ -345,6 +345,16 @@ redis_tls = {{ platform_redis_tls | to_json }}
 # redis_tls =
 {% endif %}
 
+# Enables TLS when connecting to Redis via Sentinel. When true, the Redis client
+# uses TLS for both the Sentinel connection and the Redis data connection.
+{% if platform_redis_tls_for_sentinel_mode_enabled | bool %}
+redis_enable_tls_for_sentinel_mode = true
+redis_sentinel_tls = {{ platform_redis_sentinel_tls | to_json }}
+{% else %}
+# redis_enable_tls_for_sentinel_mode =
+# redis_sentinel_tls =
+{% endif %}
+
 
 ##############################
 # HASHICORP VAULT CONNECTION #

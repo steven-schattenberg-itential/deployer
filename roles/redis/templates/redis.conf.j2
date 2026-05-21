@@ -157,8 +157,8 @@ tls-port {{ redis_port }}
 # PEM formatted.
 #
 {% if redis_tls_enabled | bool %}
-tls-cert-file {{ redis_tls_cert_file }}
-tls-key-file {{ redis_tls_key_file }}
+tls-cert-file {{ redis_tls_cert_dest }}
+tls-key-file {{ redis_tls_key_dest }}
 {% else %}
 # tls-cert-file redis.crt
 # tls-key-file redis.key
@@ -197,7 +197,7 @@ tls-key-file {{ redis_tls_key_file }}
 # of these, and will not implicitly use the system wide configuration.
 #
 {% if redis_tls_enabled | bool %}
-tls-ca-cert-file {{ redis_tls_ca_file }}
+tls-ca-cert-file {{ redis_tls_ca_dest }}
 {% else %}
 # tls-ca-cert-file ca.crt
 # tls-ca-cert-dir /etc/ssl/certs
@@ -211,7 +211,7 @@ tls-ca-cert-file {{ redis_tls_ca_file }}
 # valid if provided, but are not required.
 #
 {% if redis_tls_enabled | bool %}
-tls-auth-clients optional
+tls-auth-clients {{ redis_tls_auth_clients }}
 {% endif %}
 # tls-auth-clients no
 # tls-auth-clients optional
@@ -221,7 +221,7 @@ tls-auth-clients optional
 #
 # Use the following directive to enable TLS on replication links.
 #
-{% if redis_tls_enabled | bool and redis_replication_enabled | bool %}
+{% if redis_tls_enabled | bool and redis_has_replicas | bool %}
 tls-replication yes
 {% else %}
 # tls-replication yes

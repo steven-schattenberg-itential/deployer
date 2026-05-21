@@ -18,15 +18,16 @@ bind {{ redis_sentinel_bind }}
 
 # port <sentinel-port>
 # The port that this sentinel instance will run on
-port {{ redis_sentinel_port }}
-
 {% if redis_tls_enabled | bool %}
-# Sentinel itself listens on port 26379 WITHOUT TLS. But Sentinel connects TO
-# Redis instances using TLS. Clients connect to Sentinel without TLS.
-tls-ca-cert-file {{ redis_tls_ca_file }}
-tls-cert-file {{ redis_tls_cert_file }}
-tls-key-file {{ redis_tls_key_file }}
+port 0
+tls-port {{ redis_sentinel_port }}
+tls-cert-file {{ redis_tls_cert_dest }}
+tls-key-file {{ redis_tls_key_dest }}
+tls-ca-cert-file {{ redis_tls_ca_dest }}
 tls-replication yes
+tls-auth-clients no
+{% else %}
+port {{ redis_sentinel_port }}
 {% endif %}
 
 # By default Redis Sentinel does not run as a daemon. Use 'yes' if you need it.
