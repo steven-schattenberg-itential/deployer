@@ -7,6 +7,8 @@
     enabled: true
     state: restarted
     daemon_reload: true
+  when: platform_start_service | bool
+  listen: restart itential-platform
 
 - name: Update Itential release file
   ansible.builtin.include_tasks:

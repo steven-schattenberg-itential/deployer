@@ -1,5 +1,102 @@
 # Changelog
 
+## v3.7.2 (January 09, 2026)
+
+* Added retries to epel repo install task https://github.com/itential/itential.deployer/pull/285
+* Change Gateway offline install method to use pip wheel/download  https://github.com/itential/itential.deployer/pull/287
+* Update repository descriptions in README  https://github.com/itential/itential.deployer/pull/283
+* added support for TLS 1.3  https://github.com/itential/itential.deployer/pull/284
+
+Full Changelog: https://github.com/itential/itential.deployer/compare/v3.7.1...v3.7.2 
+
+
+## v3.7.1 (December 19, 2025)
+
+* Redis config updates  https://github.com/itential/itential.deployer/pull/279
+* Remove old variables that are no longer used  https://github.com/itential/itential.deployer/pull/280
+* Remove platform password encryption  https://github.com/itential/itential.deployer/pull/281
+* Update galaxy version and changelog for release 3.7.1 [skip ci]
+* setting vm swappiness to recommended value 1  https://github.com/itential/itential.deployer/pull/282
+
+Full Changelog: https://github.com/itential/itential.deployer/compare/v3.7.0...v3.7.1 
+
+
+## v3.7.0 (December 08, 2025)
+
+* Fix download order in Gateway offline download playbook  https://github.com/itential/itential.deployer/pull/278
+* Integrating Vault approle creation and setup  https://github.com/itential/itential.deployer/pull/276
+* Update galaxy version and changelog for release 3.7.0 [skip ci]
+
+Full Changelog: https://github.com/itential/itential.deployer/compare/v3.6.1...v3.7.0 
+
+
+## v3.6.1 (December 02, 2025)
+
+* Fix issue with installing Platform adapters  https://github.com/itential/itential.deployer/pull/277
+* Update galaxy version and changelog for release 3.6.1 [skip ci]
+
+Full Changelog: https://github.com/itential/itential.deployer/compare/v3.6.0...v3.6.1 
+
+
+## v3.6.0 (November 21, 2025)
+
+* Add community.general to galaxy dependencies and pin version  https://github.com/itential/itential.deployer/pull/275
+* Add support for relocating Platform server and service RPMs  https://github.com/itential/itential.deployer/pull/274
+* Changes to support B/G while sharing redis & mongo  https://github.com/itential/itential.deployer/pull/272
+* Update galaxy version and changelog for release 3.6.0 [skip ci]
+
+Full Changelog: https://github.com/itential/itential.deployer/compare/v3.5.0...v3.6.0 
+
+
+## v3.5.0 (November 12, 2025)
+
+* Activate gateway python venv only for gateway user  https://github.com/itential/itential.deployer/pull/264
+* Add Python test script to Gateway installs  https://github.com/itential/itential.deployer/pull/257
+* Add flag to enable/disable starting Platform service  https://github.com/itential/itential.deployer/pull/262
+* Add pkgconf-pkg-config to gateway build packages list for offline install  https://github.com/itential/itential.deployer/pull/269
+* Add regex_escape to package name search query  https://github.com/itential/itential.deployer/pull/260
+* Change gateway offline download to copy gateway wheel  https://github.com/itential/itential.deployer/pull/261
+* Copy local platform packages to download location for offline installs  https://github.com/itential/itential.deployer/pull/266
+* Determine offline adapter install list from download directory  https://github.com/itential/itential.deployer/pull/265
+* Encrypt default Platform password  https://github.com/itential/itential.deployer/pull/258
+* Fix bug when installing new adapters  https://github.com/itential/itential.deployer/pull/263
+* Fix bug with offline platform install when adapter list is empty  https://github.com/itential/itential.deployer/pull/267
+* Fix issues with offline gateway install  https://github.com/itential/itential.deployer/pull/268
+* Open Gateway Manager port in firewall  https://github.com/itential/itential.deployer/pull/270
+* Skip encryption key check when downloading Platform packages  https://github.com/itential/itential.deployer/pull/256
+* Update galaxy version and changelog for release 3.5.0 [skip ci]
+* Update platform_release format  https://github.com/itential/itential.deployer/pull/259
+* removing nodejs repo addition on AmazonLinux2023  https://github.com/itential/itential.deployer/pull/271
+
+Full Changelog: https://github.com/itential/itential.deployer/compare/v3.4.0...v3.5.0 
+
+
+## v3.4.0 (October 10, 2025)
+
+* Add assertion tasks to deployer roles  https://github.com/itential/itential.deployer/pull/236
+* Add assertions after platform and gateway upgrades  https://github.com/itential/itential.deployer/pull/237
+* Add end-tag option to changelog.py  https://github.com/itential/itential.deployer/pull/232
+* Add wait until active to mongod startup  https://github.com/itential/itential.deployer/pull/198
+* Configuration optimizations  https://github.com/itential/itential.deployer/pull/247
+* Enable logrotate for redis  https://github.com/itential/itential.deployer/pull/235
+* Fix Gateway offline collection install bug  https://github.com/itential/itential.deployer/pull/255
+* Fix Vault download packages  https://github.com/itential/itential.deployer/pull/240
+* Fix adapter download for offline installs  https://github.com/itential/itential.deployer/pull/230
+* Fix gateway firewall configuration tasks  https://github.com/itential/itential.deployer/pull/254
+* Fix issue with offline adapter install  https://github.com/itential/itential.deployer/pull/234
+* Fix posrotate mongod command  https://github.com/itential/itential.deployer/pull/250
+* Fix redis offline install  https://github.com/itential/itential.deployer/pull/252
+* Fix uninstall of NodeJS in adapter download  https://github.com/itential/itential.deployer/pull/231
+* Modified recommended http server threads comment per performance tests  https://github.com/itential/itential.deployer/pull/238
+* Readme updates  https://github.com/itential/itential.deployer/pull/249
+* Remove condition that prevents adjusting SELinux labels  https://github.com/itential/itential.deployer/pull/246
+* Update Redis to 7.4.6 - [CVE-2025-49844]  https://github.com/itential/itential.deployer/pull/251
+* Update galaxy version and changelog for release 3.4.0 [skip ci]
+* Updated public repositories  https://github.com/itential/itential.deployer/pull/244
+
+Full Changelog: https://github.com/itential/itential.deployer/compare/v3.3.0...v3.4.0 
+
+
 ## v3.3.0 (August 07, 2025)
 
 *  Set SELinux file type for redis config templates @Nick-Andreano  https://github.com/itential/itential.deployer/pull/227
@@ -20,6 +117,7 @@
 * Support for ARM in mongo role  https://github.com/itential/itential.deployer/pull/221
 * TLS enabled for mongodb  https://github.com/itential/itential.deployer/pull/210
 * Update Platform Guide  https://github.com/itential/itential.deployer/pull/209
+* Update galaxy version and changelog for release 3.3.0 [skip ci]
 
 Full Changelog: https://github.com/itential/itential.deployer/compare/v3.2.0...v3.3.0 
 
@@ -79,11 +177,33 @@ Full Changelog: https://github.com/itential/itential.deployer/compare/v3.0.0...v
 ## v3.0.0 (March 14, 2025)
 
 * Fix Gateway Ansible config paths  https://github.com/itential/itential.deployer/pull/229
+* Fix Redis offline install to not uninstall build packages  https://github.com/itential/itential.deployer/pull/245
+* Fix issues with download playbooks not copying RPMs to control node  https://github.com/itential/itential.deployer/pull/243
 * Preflight Checks  https://github.com/itential/itential.deployer/pull/116
 * Release v3.0.0
+* Update galaxy and changelog for v2.6.3
 * Update galaxy version and changelog for release 3.0.0 [skip ci]
+* Update galaxy.yml and changelog for v2.6.2
+* Update galaxy.yml and changelog with v2.6.1
 
-Full Changelog: https://github.com/itential/itential.deployer/compare/v2.6.1...v3.0.0 
+Full Changelog: https://github.com/itential/itential.deployer/compare/v2.6.3...v3.0.0 
+
+
+## v2.6.3 (September 30, 2025)
+
+* Fix Redis offline install to not uninstall build packages  https://github.com/itential/itential.deployer/pull/245
+* Update galaxy and changelog for v2.6.3
+
+Full Changelog: https://github.com/itential/itential.deployer/compare/v2.6.2...v2.6.3 
+
+
+## v2.6.2 (September 29, 2025)
+
+* Fix issues with download playbooks not copying RPMs to control node  https://github.com/itential/itential.deployer/pull/243
+* Update galaxy.yml and changelog for v2.6.2
+* Update galaxy.yml and changelog with v2.6.1
+
+Full Changelog: https://github.com/itential/itential.deployer/compare/v2.6.1...v2.6.2 
 
 
 ## v2.6.1 (August 07, 2025)

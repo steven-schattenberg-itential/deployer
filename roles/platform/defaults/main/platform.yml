@@ -1,11 +1,14 @@
 # Copyright (c) 2024, Itential, Inc
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 ---
+# Itential Platform directories
+platform_root_dir: "{{ platform_root_dir_default }}"
+platform_config_dir: "{{ platform_config_dir_default }}"
+platform_itential_home_dir: "{{ platform_itential_home_dir_default }}"
 
 # Destination as referenced by itential user when connecting from itential host.
 # This is ultimately stored in the mongo database to be read by Itential Platform, therefore
 # this is the location as seen from the Itential Platform host.
-platform_mongodb_root_ca_file_destination: /opt/itential/keys/mongo-rootCA.pem
 
 platform_package_dependencies:
   - glibc-common
@@ -23,16 +26,6 @@ platform_python_base_dependencies:
 # These will be symlinks to the appropriate executables in /usr/bin.
 platform_python_executable: "/usr/bin/python{{ platform_python_version }}"
 platform_pip_executable: "/usr/bin/pip{{ platform_python_version }}"
-
-# Should the platform configure and add any IAG adapters that it
-# discovers? Based on the presence of devices in the gateway group
-# this will build adapter configs for each that it finds and insert
-# them into the mongo database.
-platform_configure_iag_adapters: true
-
-# If the IAG adapters are configured, set the token timeout. The
-# default value is 3600000 milliseconds (60 minutes).
-platform_iag_adapter_token_timeout: 3600000
 
 # The default user that runs the server process
 platform_user: itential
@@ -54,3 +47,10 @@ platform_npm_ignore_scripts: true
 
 # Flag to install app-artifacts
 platform_app_artifacts_enabled: false
+
+# Flag to determine if the service is started
+platform_start_service: true
+
+# Default location for the certification report files
+platform_certify_report_dir_remote: /var/tmp/itential-reports/platform
+platform_certify_report_dir_local: /tmp/itential-reports/platform
