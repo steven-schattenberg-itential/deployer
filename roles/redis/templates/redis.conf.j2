@@ -240,9 +240,9 @@ tls-replication yes
 # To enable only TLSv1.2 and TLSv1.3, use:
 #
 {% if redis_tls_enabled | bool %}
-tls-protocols "TLSv1.2 TLSv1.3"
+tls-protocols "{{ redis_tls_protocols }}"
 {% else %}
-# tls-protocols "TLSv1.2 TLSv1.3"
+# tls-protocols "TLSv1.3"
 {% endif %}
 
 # Configure allowed ciphers.  See the ciphers(1ssl) manpage for more information

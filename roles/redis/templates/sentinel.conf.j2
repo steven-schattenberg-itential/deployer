@@ -21,11 +21,12 @@ bind {{ redis_sentinel_bind }}
 {% if redis_tls_enabled | bool %}
 port 0
 tls-port {{ redis_sentinel_port }}
-tls-cert-file {{ redis_tls_cert_dest }}
-tls-key-file {{ redis_tls_key_dest }}
+tls-cert-file {{ redis_sentinel_tls_cert_dest }}
+tls-key-file {{ redis_sentinel_tls_key_dest }}
 tls-ca-cert-file {{ redis_tls_ca_dest }}
 tls-replication yes
 tls-auth-clients no
+tls-protocols "{{ redis_tls_protocols }}"
 {% else %}
 port {{ redis_sentinel_port }}
 {% endif %}

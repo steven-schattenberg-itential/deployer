@@ -340,16 +340,16 @@ redis_name = {{ platform_redis_name }}
 # Redis TLS configuration options for secure connections.
 # Refer to NodeJS TLS library for all supported options.
 {% if platform_redis_tls_enabled | bool %}
-redis_tls = {{ platform_redis_tls | to_json }}
+redis_tls = {{ {'rejectUnauthorized': false, 'ca': platform_redis_ca_dest} | combine(platform_redis_tls) | to_json }}
 {% else %}
 # redis_tls =
 {% endif %}
 
 # Enables TLS when connecting to Redis via Sentinel. When true, the Redis client
 # uses TLS for both the Sentinel connection and the Redis data connection.
-{% if platform_redis_tls_for_sentinel_mode_enabled | bool %}
+{% if platform_redis_tls_enabled | bool %}
 redis_enable_tls_for_sentinel_mode = true
-redis_sentinel_tls = {{ platform_redis_sentinel_tls | to_json }}
+redis_sentinel_tls = {{ {'rejectUnauthorized': false, 'ca': platform_redis_ca_dest} | combine(platform_redis_sentinel_tls) | to_json }}
 {% else %}
 # redis_enable_tls_for_sentinel_mode =
 # redis_sentinel_tls =
