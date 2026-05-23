@@ -86,10 +86,6 @@
         group: "{{ platform_group }}"
       notify: restart itential-platform
 
-# ============================================================================
-# MongoDB Client Certificates
-# ============================================================================
-
     - name: Put the HTTPS CA cert file in the correct location
       ansible.builtin.copy:
         src: "{{ platform_https_ca_src }}"
@@ -97,6 +93,10 @@
         mode: "0644"
         owner: "{{ platform_pki_base_owner }}"
         group: "{{ platform_pki_base_group }}"
+
+# ============================================================================
+# MongoDB Client Certificates
+# ============================================================================
 
 - name: Copy MongoDB root CA file to the appropriate location
   ansible.builtin.copy:
