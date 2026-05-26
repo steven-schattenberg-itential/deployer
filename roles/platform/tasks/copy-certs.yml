@@ -6,7 +6,7 @@
 # ============================================================================
 
 - name: Prepare Platform PKI infrastructure
-  when: platform_webserver_https_copy_certs | bool or platform_mongodb_copy_certs | bool
+  when: platform_webserver_https_copy_certs | bool or platform_mongodb_copy_certs | bool or platform_redis_copy_certs | bool
   tags:
     - platform
     - platform_certificates
@@ -30,6 +30,7 @@
       loop:
         - "{{ platform_pki_https_dir }}"
         - "{{ platform_mongodb_pki_dir }}"
+        - "{{ platform_redis_pki_dir }}"
 
     - name: Create Platform private key directory
       ansible.builtin.file:
@@ -85,6 +86,14 @@
         group: "{{ platform_group }}"
       notify: restart itential-platform
 
+    - name: Put the HTTPS CA cert file in the correct location
+      ansible.builtin.copy:
+        src: "{{ platform_https_ca_src }}"
+        dest: "{{ platform_https_ca_dest }}"
+        mode: "0644"
+        owner: "{{ platform_pki_base_owner }}"
+        group: "{{ platform_pki_base_group }}"
+
 # ============================================================================
 # MongoDB Client Certificates
 # ============================================================================
@@ -104,4 +113,26 @@
     - platform
     - platform_certificates
     - platform_mongodb
+    - certificates
+
+# ============================================================================
+# Redis Client Certificates
+# ============================================================================
+
+- name: Copy Redis CA file to the appropriate location
+  ansible.builtin.copy:
+    src: "{{ platform_redis_ca_src }}"
+    dest: "{{ platform_redis_ca_dest }}"
+    mode: "0644"
+    owner: "{{ platform_user }}"
+    group: "{{ platform_group }}"
+  when:
+    - platform_redis_copy_certs | bool
+    - platform_redis_tls_enabled | bool
+    - platform_redis_ca_src | length > 0
+  notify: restart itential-platform
+  tags:
+    - platform
+    - platform_certificates
+    - platform_redis
     - certificates

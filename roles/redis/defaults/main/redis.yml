@@ -32,7 +32,7 @@ redis_bind: 127.0.0.1 {{ ansible_default_ipv4.address }}
 # Feature flags that can be overridden in the hosts file
 # Essentially, a default installation will have auth, but not tls
 redis_auth_enabled: true
-redis_tls_enabled: false
+redis_tls_enabled: true
 
 # Replication settings
 redis_replicaof: "{{ groups['redis_master'][0] }} {{ redis_port }}"
@@ -60,7 +60,7 @@ redis_monitor_user_enabled: false
 # Redis TLS configuration options
 redis_tls_port: "{{ redis_tls_port_default }}"
 redis_tls_auth_clients: "no"
-redis_tls_protocols: "TLSv1.2 TLSv1.3"
+redis_tls_protocols: "TLSv1.3"
 
 # Redis memory sizing defaults (dedicated Redis node)
 
