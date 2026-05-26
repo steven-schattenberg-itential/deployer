@@ -13,3 +13,7 @@ all:
       vars:
         # By default, Redis will be installed from source.
         # redis_install_from_source: true
+
+        # TLS is disabled in this example. Set redis_tls_enabled: true and
+        # redis_pki_src_dir to enable TLS. See the tls_guide.md for details.
+        redis_tls_enabled: false
