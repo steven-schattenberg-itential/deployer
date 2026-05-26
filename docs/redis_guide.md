@@ -69,7 +69,6 @@ all:
           ansible_host: <addr1>
       vars:
         platform_release: 6
-        redis_tls_enabled: true
         redis_pki_src_dir: /path/to/certs/on/control/node
 ```
 
@@ -79,7 +78,6 @@ all:
 all:
   vars:
     platform_release: 6
-    redis_tls_enabled: true
     redis_pki_src_dir: /path/to/certs/on/control/node
   children:
     redis_master:
