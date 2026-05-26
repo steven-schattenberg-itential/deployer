@@ -68,7 +68,7 @@
     dest: "{{ redis_conf_file }}"
     owner: "{{ redis_owner }}"
     group: "{{ redis_group }}"
-    mode: "0640"
+    mode: "0644"
     setype: redis_conf_t
     backup: true
   tags: configure_redis
@@ -79,4 +79,4 @@
     dest: /etc/logrotate.d/redis
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"

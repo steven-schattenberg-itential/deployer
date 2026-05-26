@@ -108,7 +108,9 @@ Installs and configures Itential Platform (IAP). Handles OS user/directory setup
 | `platform_redis_sentinel_username` | `sentineluser` | Sentinel username |
 | `platform_redis_sentinel_password` | `sentineluser` | Sentinel password |
 | `platform_redis_name` | `itentialmaster` | Redis primary name (must match `redis_sentinel_master_name`) |
+| `platform_redis_tls_enabled` | `true` | Enable TLS for both the Redis data connection and the Sentinel connection |
 | `platform_redis_tls` | (empty) | TLS options dict for NodeJS Redis client |
+| `platform_redis_sentinel_tls` | (empty) | TLS options dict for Sentinel connection; used when `platform_redis_tls_enabled: true` |
 
 ### pki.yml defaults (TLS paths)
 
@@ -118,14 +120,20 @@ Installs and configures Itential Platform (IAP). Handles OS user/directory setup
 | `platform_pki_https_dir` | `{{ platform_pki_base_dir }}/https` | HTTPS cert subdirectory |
 | `platform_pki_private_dir` | `{{ platform_pki_base_dir }}/private` | Private key subdirectory |
 | `platform_mongodb_pki_dir` | `{{ platform_pki_base_dir }}/mongodb` | MongoDB client cert subdirectory |
+| `platform_redis_pki_dir` | `{{ platform_pki_base_dir }}/redis` | Redis client cert subdirectory |
 | `platform_webserver_https_copy_certs` | `true` | Copy HTTPS certs from control node |
 | `platform_mongodb_copy_certs` | `true` | Copy MongoDB CA from control node |
+| `platform_redis_copy_certs` | `true` | Copy Redis CA from control node |
 | `platform_https_cert_file` | `{{ inventory_hostname }}.crt` | HTTPS cert filename |
 | `platform_https_key_file` | `{{ inventory_hostname }}.key` | HTTPS key filename |
 | `platform_https_ca_file` | `ca-bundle.crt` | HTTPS CA bundle filename |
 | `platform_mongodb_ca_file` | `ca-bundle.crt` | MongoDB CA bundle filename |
+| `platform_redis_ca_file` | `ca-bundle.crt` | Redis CA bundle filename |
 | `platform_https_pki_src_dir` | `""` | HTTPS cert source dir on control node |
 | `platform_mongodb_pki_src_dir` | `""` | MongoDB cert source dir on control node |
+| `platform_redis_pki_src_dir` | `""` | Redis cert source dir on control node |
+| `platform_redis_ca_src` | `{{ platform_redis_pki_src_dir }}/{{ platform_redis_ca_file }}` | Redis CA source path on control node |
+| `platform_redis_ca_dest` | `{{ platform_redis_pki_dir }}/{{ platform_redis_ca_file }}` | Redis CA destination path on target |
 | `platform_mongo_tls_ca_file` | `{{ platform_mongodb_ca_dest }}` or `""` | CA file path in properties (empty when TLS disabled) |
 
 ### authentication.yml defaults

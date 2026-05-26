@@ -40,5 +40,11 @@ platform_redis_sentinel_password: sentineluser
 platform_redis_name: itentialmaster
 
 # Redis TLS configuration options for secure connections.
+# When true, enables TLS for both the Redis data connection and the Sentinel connection.
 # Refer to NodeJS TLS library for all supported options.
-platform_redis_tls:
+platform_redis_tls_enabled: true
+platform_redis_tls: {}
+
+# TLS options for the Sentinel connection itself. Refer to the NodeJS TLS library for all
+# supported options. Only used when platform_redis_tls_enabled is true.
+platform_redis_sentinel_tls: {}

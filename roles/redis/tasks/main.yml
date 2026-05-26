@@ -52,7 +52,19 @@
 
     - name: Configure Redis TLS
       ansible.builtin.include_tasks: configure-redis-tls.yml
-      when: redis_tls_enabled | bool
+      when:
+        - redis_tls_enabled | bool
+        - redis_is_data_node
+      tags:
+        - redis
+        - redis_certificates
+        - certificates
+
+    - name: Configure Sentinel TLS
+      ansible.builtin.include_tasks: configure-sentinel-tls.yml
+      when:
+        - redis_tls_enabled | bool
+        - redis_is_sentinel_node
       tags:
         - redis
         - redis_certificates

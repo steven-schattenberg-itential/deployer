@@ -1,8 +1,8 @@
 # Redis Role
 
-The playbook and role in this section install and configure Redis for the Itential Automation
-Platform.  There is one Redis-related role which installs Redis and performs a base configuration.
-Optionally configures authentication and replication.
+The playbook and role in this section install and configure Redis for the Itential Platform.
+There is one Redis-related role which installs Redis and performs a base configuration.
+Optionally configures authentication, TLS, and replication.
 
 ## Redis Install
 
@@ -34,6 +34,71 @@ More info on Redis authorization: <https://redis.io/docs/manual/security/>
 :::(Warning) (⚠ Warning: ) It is assumed that these default passwords will be changed to meet more
 rigorous standards.  These are intended to be defaults strictly used just for ease of the
 installation.  It is highly recommended that sensitive data be encrypted using Ansible Vault.
+
+## TLS
+
+TLS is **enabled by default** for Redis and Redis Sentinel. Both are controlled by a single flag
+(`redis_tls_enabled`). When TLS is enabled, the deployer enforces TLSv1.3 only and disables
+plain-text connections by setting `port 0` and listening exclusively on `tls-port`.
+
+Client certificate authentication is disabled by default (`redis_tls_auth_clients: no`). The
+connection is still fully encrypted; the server just does not require clients to present a
+certificate.
+
+### Required Certificates
+
+The deployer does not generate certificates. The following files must be present on the Ansible
+control node in the directory defined by `redis_pki_src_dir`:
+
+| File | Variable | Description |
+| :--- | :------- | :---------- |
+| `<hostname>.crt` | `redis_tls_cert_file` | Server certificate (one per node by default) |
+| `<hostname>.key` | `redis_tls_key_file` | Server private key (one per node by default) |
+| `ca-bundle.crt` | `redis_tls_ca_file` | CA bundle used to verify peer certificates |
+| `<hostname>.crt` | `redis_sentinel_tls_cert_file` | Sentinel certificate (one per Sentinel node by default, named after inventory hostname) |
+| `<hostname>.key` | `redis_sentinel_tls_key_file` | Sentinel private key (one per Sentinel node by default) |
+
+### Example Inventory - TLS Enabled (Single Node)
+
+```yaml
+all:
+  children:
+    redis_master:
+      hosts:
+        <host1>:
+          ansible_host: <addr1>
+      vars:
+        platform_release: 6
+        redis_pki_src_dir: /path/to/certs/on/control/node
+```
+
+### Example Inventory - TLS Enabled (Sentinel HA)
+
+```yaml
+all:
+  vars:
+    platform_release: 6
+    redis_pki_src_dir: /path/to/certs/on/control/node
+  children:
+    redis_master:
+      hosts:
+        <host1>:
+          ansible_host: <addr1>
+    redis_replica:
+      hosts:
+        <host2>:
+          ansible_host: <addr2>
+        <host3>:
+          ansible_host: <addr3>
+    redis_sentinel:
+      hosts:
+        <host1>:
+          ansible_host: <addr1>
+        <host2>:
+          ansible_host: <addr2>
+        <host3>:
+          ansible_host: <addr3>
+```
 
 ## Replication
 
@@ -180,10 +245,10 @@ The following tables lists the default variables located in `roles/redis/default
 | `redis_owner` | String | The Redis Linux user. | `redis` |
 | `redis_group` | String | The Redis Linux group. | `redis` |
 | `redis_bind` | String | A space-separated list of hostnames/IP addresses on which Redis listeners will be created. | `bind 127.0.0.1 {{ ansible_default_ipv4.address }}` |
-| `redis_tls_enabled` | Boolean | Flag to enable TLS connections. | `false` |
+| `redis_tls_enabled` | Boolean | Flag to enable TLS connections. Also enables Sentinel TLS when Sentinel is in use. | `true` |
 | `redis_tls_port` | Integer | The Redis TLS listen port. | Varies by platform |
 | `redis_tls_auth_clients` | String | TLS client authentication setting. | `no` |
-| `redis_tls_protocols` | String | Enabled TLS protocol versions. | `TLSv1.2 TLSv1.3` |
+| `redis_tls_protocols` | String | Enabled TLS protocol versions. | `TLSv1.3` |
 | `redis_maxmemory_bytes` | String/Integer | Maximum memory Redis can use (maxmemory). When set to auto, the installer calculates the value from the system RAM using: `maxmemory = max(redis_maxmemory_min_mb, system_ram × redis_maxmemory_ratio)`. If a numeric value is provided, that value (in bytes) is used directly and the automatic calculation is skipped. | `auto` |
 | `redis_maxmemory_ratio` | Float | Define how much memory the system will use. Only work if `redis_maxmemory_bytes` is configured as auto. Default value 0.8 means 80%. | `0.80` |
 | `redis_maxmemory_min_mb` | Integer | This parameter defines the minimum amount of memory Redis is allowed to use, even if the automatic calculation would result in a smaller value. It acts as a safety floor for the maxmemory calculation. | `512` |
@@ -229,18 +294,26 @@ The following table lists the PKI-related variables located in `roles/redis/defa
 
 | Variable | Type | Description | Default Value |
 | :------- | :--- | :---------- | :------------ |
-| `redis_pki_base_dir` | String | Base directory for Redis PKI files. | `/etc/pki/redis` |
-| `redis_pki_private_subdir` | String | Subdirectory name for private keys. | `private` |
-| `redis_pki_private_dir` | String | Full path to private keys directory. | `{{ redis_pki_base_dir }}/{{ redis_pki_private_subdir }}` |
-| `redis_pki_src_dir` | String | Source directory on Ansible controller containing certificates. | `""` |
+| `redis_pki_base_dir` | String | Base directory for Redis PKI files on the target node. | `/etc/pki/redis` |
+| `redis_pki_private_dir` | String | Full path to private keys directory on the target node. | `/etc/pki/redis/private` |
+| `redis_pki_src_dir` | String | Source directory on Ansible controller containing certificates. Required when `redis_tls_enabled: true`. | `""` |
 | `redis_pki_owner` | String | Owner for PKI directories and files. | `redis` |
 | `redis_pki_group` | String | Group for PKI directories and files. | `redis` |
-| `redis_tls_cert_src` | String | Full source path for Redis server certificate on controller. | `{{ redis_pki_src_dir }}/{{ redis_tls_cert_dest }}` |
-| `redis_tls_key_src` | String | Full source path for Redis server private key on controller. | `{{ redis_pki_src_dir }}/{{ redis_tls_key_dest }}` |
-| `redis_tls_ca_src` | String | Full source path for CA bundle on controller. | `{{ redis_pki_src_dir }}/{{ redis_tls_ca_dest }}` |
-| `redis_tls_dh_params_src` | String | Full source path for DH parameters on controller. | `{{ redis_pki_src_dir }}/{{ redis_tls_dh_params_dest }}` |
-| `redis_sentinel_tls_cert_src` | String | Full source path for Sentinel certificate on controller. | `{{ redis_pki_src_dir }}/{{ redis_sentinel_tls_cert_dest }}` |
-| `redis_sentinel_tls_key_src` | String | Full source path for Sentinel private key on controller. | `{{ redis_pki_src_dir }}/{{ redis_sentinel_tls_key_dest }}` |
+| `redis_tls_cert_file` | String | Server certificate filename. | `{{ inventory_hostname }}.crt` |
+| `redis_tls_key_file` | String | Server private key filename. | `{{ inventory_hostname }}.key` |
+| `redis_tls_ca_file` | String | CA bundle filename. | `ca-bundle.crt` |
+| `redis_sentinel_tls_cert_file` | String | Sentinel certificate filename. | `{{ inventory_hostname }}.crt` |
+| `redis_sentinel_tls_key_file` | String | Sentinel private key filename. | `{{ inventory_hostname }}.key` |
+| `redis_tls_cert_src` | String | Full source path for server certificate on controller. | `{{ redis_pki_src_dir }}/{{ redis_tls_cert_file }}` |
+| `redis_tls_key_src` | String | Full source path for server private key on controller. | `{{ redis_pki_src_dir }}/{{ redis_tls_key_file }}` |
+| `redis_tls_ca_src` | String | Full source path for CA bundle on controller. | `{{ redis_pki_src_dir }}/{{ redis_tls_ca_file }}` |
+| `redis_sentinel_tls_cert_src` | String | Full source path for Sentinel certificate on controller. | `{{ redis_pki_src_dir }}/{{ redis_sentinel_tls_cert_file }}` |
+| `redis_sentinel_tls_key_src` | String | Full source path for Sentinel private key on controller. | `{{ redis_pki_src_dir }}/{{ redis_sentinel_tls_key_file }}` |
+| `redis_tls_cert_dest` | String | Destination path for server certificate on target node. | `{{ redis_pki_base_dir }}/{{ redis_tls_cert_file }}` |
+| `redis_tls_key_dest` | String | Destination path for server private key on target node. | `{{ redis_pki_private_dir }}/{{ redis_tls_key_file }}` |
+| `redis_tls_ca_dest` | String | Destination path for CA bundle on target node. | `{{ redis_pki_base_dir }}/{{ redis_tls_ca_file }}` |
+| `redis_sentinel_tls_cert_dest` | String | Destination path for Sentinel certificate on target node. | `{{ redis_pki_base_dir }}/{{ redis_sentinel_tls_cert_file }}` |
+| `redis_sentinel_tls_key_dest` | String | Destination path for Sentinel private key on target node. | `{{ redis_pki_private_dir }}/{{ redis_sentinel_tls_key_file }}` |
 
 ### Offline Variables
 
