@@ -19,6 +19,7 @@
   vars:
     profile_name: Local_AAA
   when: groups["platform_secondary"] is not defined or groups["platform_secondary"] | length < 1
+  notify: restart itential-platform
 
 - name: Create the Itential properties.json files for advanced prod builds
   when: groups["platform_secondary"] is defined and groups["platform_secondary"] | length > 0
@@ -38,6 +39,7 @@
       vars:
         profile_name: Primary_Local_AAA
       when: inventory_hostname in groups['platform']
+      notify: restart itential-platform
 
     - name: Create the platform.properties file for the secondary
       ansible.builtin.template:
@@ -54,3 +56,4 @@
       vars:
         profile_name: Secondary_Local_AAA
       when: inventory_hostname in groups['platform_secondary']
+      notify: restart itential-platform
