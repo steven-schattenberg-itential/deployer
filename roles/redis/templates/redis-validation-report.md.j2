@@ -121,14 +121,14 @@ Redis INFO not available - check connectivity and authentication
 
 ## Configuration File
 
-- **Config File Exists:** {{ redis_conf_file.stat.exists | default('Unknown') if redis_conf_file is defined else 'Unknown' }}
-{% if redis_conf_file is defined and redis_conf_file.stat.exists %}
+- **Config File Exists:** {{ redis_conf_file.stat.exists if (redis_conf_file is defined and redis_conf_file.stat is defined) else 'Unknown' }}
+{% if redis_conf_file is defined and redis_conf_file.stat is defined and redis_conf_file.stat.exists %}
 - **Config File Path:** `/etc/redis/redis.conf`
 - **Permissions:** {{ redis_conf_permissions.stdout | default('Unknown') if redis_conf_permissions is defined else 'Unknown' }}
 {% endif %}
 
-- **Systemd Unit File:** {{ redis_systemd_file.stat.exists | default('Unknown') if redis_systemd_file is defined else 'Unknown' }}
-{% if redis_systemd_file is defined and redis_systemd_file.stat.exists %}
+- **Systemd Unit File:** {{ redis_systemd_file.stat.exists if (redis_systemd_file is defined and redis_systemd_file.stat is defined) else 'Unknown' }}
+{% if redis_systemd_file is defined and redis_systemd_file.stat is defined and redis_systemd_file.stat.exists %}
 - **Unit File Path:** `/etc/systemd/system/redis.service`
 {% endif %}
 
@@ -361,14 +361,14 @@ No other Replicas were found!
 
 ## Sentinel Configuration File
 
-- **Config File Exists:** {{ sentinel_conf_file.stat.exists | default('Unknown') if sentinel_conf_file is defined else 'Unknown' }}
-{% if sentinel_conf_file is defined and sentinel_conf_file.stat.exists | default(false) %}
+- **Config File Exists:** {{ sentinel_conf_file.stat.exists if (sentinel_conf_file is defined and sentinel_conf_file.stat is defined) else 'Unknown' }}
+{% if sentinel_conf_file is defined and sentinel_conf_file.stat is defined and sentinel_conf_file.stat.exists %}
 - **Config File Path:** `/etc/redis/sentinel.conf`
 - **Permissions:** {{ sentinel_conf_permissions.stdout | default('Unknown') if sentinel_conf_permissions is defined else 'Unknown' }}
 {% endif %}
 
-- **Systemd Unit File:** {{ sentinel_systemd_file.stat.exists | default('Unknown') if sentinel_systemd_file is defined else 'Unknown' }}
-{% if sentinel_systemd_file is defined and sentinel_systemd_file.stat.exists | default(false) %}
+- **Systemd Unit File:** {{ sentinel_systemd_file.stat.exists if (sentinel_systemd_file is defined and sentinel_systemd_file.stat is defined) else 'Unknown' }}
+{% if sentinel_systemd_file is defined and sentinel_systemd_file.stat is defined and sentinel_systemd_file.stat.exists %}
 - **Unit File Path:** `/etc/systemd/system/redis-sentinel.service`
 {% endif %}
 
@@ -418,13 +418,13 @@ No Sentinel users were found!
 {% endif %}
 - **Redis Process Running:** {{ 'YES' if (redis_process is defined and redis_process.rc == 0) else 'NO' }} {{ '✓' if (redis_process is defined and redis_process.rc == 0) else '✗' }}
 - **Redis Responding:** {{ 'YES' if (redis_ping is defined and redis_ping.rc == 0) else 'NO' }} {{ '✓' if (redis_ping is defined and redis_ping.rc == 0) else '✗' }}
-- **Redis Config File Present:** {{ 'YES' if (redis_conf_file is defined and redis_conf_file.stat.exists) else 'NO' }} {{ '✓' if (redis_conf_file is defined and redis_conf_file.stat.exists) else '✗' }}
+- **Redis Config File Present:** {{ 'YES' if (redis_conf_file is defined and redis_conf_file.stat is defined and redis_conf_file.stat.exists) else 'NO' }} {{ '✓' if (redis_conf_file is defined and redis_conf_file.stat is defined and redis_conf_file.stat.exists) else '✗' }}
 {% if sentinel_service_status is defined and sentinel_service_status.status is defined %}
 - **Sentinel Service Exists:** YES ✓
 - **Sentinel Service Active:** {{ sentinel_service_status.status.ActiveState | default('unknown') | upper }} {{ '✓' if sentinel_service_status.status.ActiveState == 'active' else '✗' }}
 - **Sentinel Process Running:** {{ 'YES' if (sentinel_process is defined and sentinel_process.rc == 0) else 'NO' }} {{ '✓' if (sentinel_process is defined and sentinel_process.rc == 0) else '✗' }}
 - **Sentinel Responding:** {{ 'YES' if (sentinel_ping is defined and sentinel_ping.rc == 0) else 'NO' }} {{ '✓' if (sentinel_ping is defined and sentinel_ping.rc == 0) else '✗' }}
-- **Sentinel Config File Present:** {{ 'YES' if (sentinel_conf_file is defined and sentinel_conf_file.stat.exists | default(false)) else 'NO' }} {{ '✓' if (sentinel_conf_file is defined and sentinel_conf_file.stat.exists | default(false)) else '✗' }}
+- **Sentinel Config File Present:** {{ 'YES' if (sentinel_conf_file is defined and sentinel_conf_file.stat is defined and sentinel_conf_file.stat.exists) else 'NO' }} {{ '✓' if (sentinel_conf_file is defined and sentinel_conf_file.stat is defined and sentinel_conf_file.stat.exists) else '✗' }}
 - **Sentinel Monitoring:** {{ ([itential_master.name] if itential_master is defined and itential_master.name is defined else []) | length }} master(s) {{ '✓' if (itential_master is defined and itential_master.name is defined) else '✗' }}
 - **Sentinel Quorum:** {{ 'OK' if (quorum_check_details is defined and 'OK' in quorum_check_details) else 'FAILED' }} {{ '✓' if (quorum_check_details is defined and 'OK' in quorum_check_details) else '✗' }}
 {% else %}

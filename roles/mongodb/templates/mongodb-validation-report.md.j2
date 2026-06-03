@@ -109,14 +109,14 @@ Host details not available
 
 ## Configuration Files
 
-- **Config File Exists:** {{ 'YES ✓' if (mongodb_conf_file is defined and mongodb_conf_file.stat.exists) else 'NO ✗' }}
-{% if mongodb_conf_file is defined and mongodb_conf_file.stat.exists %}
+- **Config File Exists:** {{ 'YES ✓' if (mongodb_conf_file is defined and mongodb_conf_file.stat is defined and mongodb_conf_file.stat.exists) else 'NO ✗' }}
+{% if mongodb_conf_file is defined and mongodb_conf_file.stat is defined and mongodb_conf_file.stat.exists %}
 - **Config File Path:** `/etc/mongod.conf`
 - **Permissions:** {{ mongodb_conf_permissions.stdout | default('Unknown') if mongodb_conf_permissions is defined else 'Unknown' }}
 {% endif %}
 
-- **Systemd Unit File:** {{ 'YES ✓' if (mongodb_systemd_file is defined and mongodb_systemd_file.stat.exists) else 'NO ✗' }}
-{% if mongodb_systemd_file is defined and mongodb_systemd_file.stat.exists %}
+- **Systemd Unit File:** {{ 'YES ✓' if (mongodb_systemd_file is defined and mongodb_systemd_file.stat is defined and mongodb_systemd_file.stat.exists) else 'NO ✗' }}
+{% if mongodb_systemd_file is defined and mongodb_systemd_file.stat is defined and mongodb_systemd_file.stat.exists %}
 - **Unit File Path:** `/etc/systemd/system/mongod.service`
 {% endif %}
 
@@ -126,7 +126,7 @@ Host details not available
 
 {% if mongodb_data_dir.stdout is defined and mongodb_data_dir.stdout != "" %}
 - **Data Directory:** `{{ mongodb_data_dir.stdout }}`
-- **Directory Exists:** {{ 'YES ✓' if (mongodb_data_dir_stat is defined and mongodb_data_dir_stat.stat.exists) else 'NO ✗' }}
+- **Directory Exists:** {{ 'YES ✓' if (mongodb_data_dir_stat is defined and mongodb_data_dir_stat.stat is defined and mongodb_data_dir_stat.stat.exists) else 'NO ✗' }}
 {% if mongodb_data_size is defined and mongodb_data_size.rc == 0 %}
 - **Data Size:** {{ mongodb_data_size.stdout }}
 {% endif %}
@@ -386,7 +386,7 @@ Replica set not configured ✗
 {% endif %}
 - **MongoDB Process Running:** {{ 'YES ✓' if (mongodb_process is defined and mongodb_process.rc == 0) else 'NO ✗' }}
 - **MongoDB Ping:** {{ 'YES ✓' if (mongodb_ping is defined and mongodb_ping.rc == 0) else 'NO ✗' }}
-- **Config File Present:** {{ 'YES ✓' if (mongodb_conf_file is defined and mongodb_conf_file.stat.exists) else 'NO ✗' }}
+- **Config File Present:** {{ 'YES ✓' if (mongodb_conf_file is defined and mongodb_conf_file.stat is defined and mongodb_conf_file.stat.exists) else 'NO ✗' }}
 - **Authentication Enabled:** {{ 'YES ✓' if (mongodb_auth_enabled is defined and mongodb_auth_enabled.rc == 0) else 'NO ✗' }}
 {% if mongodb_tls_mode is defined and mongodb_tls_mode.rc == 0 %}
 - **TLS Configured:** YES ✓
