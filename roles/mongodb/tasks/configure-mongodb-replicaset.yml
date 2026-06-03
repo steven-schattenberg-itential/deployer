@@ -68,8 +68,8 @@
     tls_ca_file: "{{ mongodb_tls_ca_dest }}"
     tls_cert_key_file: "{{ mongodb_tls_cert_dest }}"
   register: mongodb_state_post_restart
-  retries: 6
-  delay: 5
+  retries: "{{ mongodb_mongod_service_retries }}"
+  delay: "{{ mongodb_mongod_service_delay }}"
   until: >-
     (mongodb_state_post_restart is not failed) and
     (mongodb_state_post_restart.replication_enabled | bool)
