@@ -80,14 +80,14 @@ Host details not available
 ---
 
 ## Configuration Files
-- **Config File Exists:** {{ 'YES ✓' if (platform_conf_file is defined and platform_conf_file.stat.exists) else 'NO ✗' }}
-{% if platform_conf_file is defined and platform_conf_file.stat.exists %}
+- **Config File Exists:** {{ 'YES ✓' if (platform_conf_file is defined and platform_conf_file.stat is defined and platform_conf_file.stat.exists) else 'NO ✗' }}
+{% if platform_conf_file is defined and platform_conf_file.stat is defined and platform_conf_file.stat.exists %}
 - **Config File Path:** `/etc/itential/platform.properties`
 - **Permissions:** {{ platform_conf_permissions.stdout | default('Unknown') if platform_conf_permissions is defined else 'Unknown' }}
 {% endif %}
 
-- **Systemd Unit File:** {{ 'YES ✓' if (platform_systemd_file is defined and platform_systemd_file.stat.exists) else 'NO ✗' }}
-{% if platform_systemd_file is defined and platform_systemd_file.stat.exists %}
+- **Systemd Unit File:** {{ 'YES ✓' if (platform_systemd_file is defined and platform_systemd_file.stat is defined and platform_systemd_file.stat.exists) else 'NO ✗' }}
+{% if platform_systemd_file is defined and platform_systemd_file.stat is defined and platform_systemd_file.stat.exists %}
 - **Unit File Path:** `/etc/systemd/system/itential-platform.service`
 {% endif %}
 
@@ -136,11 +136,11 @@ Host details not available
 
 | File | Exists | Permissions | Path |
 |------|--------|-------------|------|
-| Certificate | {{ 'YES' if platform_https_cert_stat.stat.exists | default(false) else 'NO' }} | {{ platform_https_cert_stat.stat.mode | default('N/A') }} | {{ platform_https_cert_dest }} |
-| Private Key | {{ 'YES' if platform_https_key_stat.stat.exists | default(false) else 'NO' }} | {{ platform_https_key_stat.stat.mode | default('N/A') }} | {{ platform_https_key_dest }} |
-| CA Bundle | {{ 'YES' if platform_https_ca_stat.stat.exists | default(false) else 'NO' }} | {{ platform_https_ca_stat.stat.mode | default('N/A') }} | {{ platform_https_ca_dest }} |
+| Certificate | {{ 'YES' if (platform_https_cert_stat.stat is defined and platform_https_cert_stat.stat.exists) else 'NO' }} | {{ platform_https_cert_stat.stat.mode if platform_https_cert_stat.stat is defined else 'N/A' }} | {{ platform_https_cert_dest }} |
+| Private Key | {{ 'YES' if (platform_https_key_stat.stat is defined and platform_https_key_stat.stat.exists) else 'NO' }} | {{ platform_https_key_stat.stat.mode if platform_https_key_stat.stat is defined else 'N/A' }} | {{ platform_https_key_dest }} |
+| CA Bundle | {{ 'YES' if (platform_https_ca_stat.stat is defined and platform_https_ca_stat.stat.exists) else 'NO' }} | {{ platform_https_ca_stat.stat.mode if platform_https_ca_stat.stat is defined else 'N/A' }} | {{ platform_https_ca_dest }} |
 
-PKI Base Directory: `{{ platform_pki_base_dir }}` — Owner: {{ platform_pki_dir_stat.stat.pw_name | default('N/A') }}:{{ platform_pki_dir_stat.stat.gr_name | default('N/A') }}, Mode: {{ platform_pki_dir_stat.stat.mode | default('N/A') }}
+PKI Base Directory: `{{ platform_pki_base_dir }}` — Owner: {{ platform_pki_dir_stat.stat.pw_name if platform_pki_dir_stat.stat is defined else 'N/A' }}:{{ platform_pki_dir_stat.stat.gr_name if platform_pki_dir_stat.stat is defined else 'N/A' }}, Mode: {{ platform_pki_dir_stat.stat.mode if platform_pki_dir_stat.stat is defined else 'N/A' }}
 
 #### Certificate Details
 
@@ -161,7 +161,7 @@ PKI Base Directory: `{{ platform_pki_base_dir }}` — Owner: {{ platform_pki_dir
 - Validity dates not available (certificate file missing or unreadable)
 {% endif %}
 
-{% if platform_https_ca_stat.stat.exists | default(false) %}
+{% if platform_https_ca_stat.stat is defined and platform_https_ca_stat.stat.exists %}
 #### CA Bundle Validity
 
 {% if platform_https_ca_dates is defined and platform_https_ca_dates.rc is defined and platform_https_ca_dates.rc == 0 %}
@@ -208,9 +208,9 @@ Not tested (HTTPS disabled, port unavailable, or CA missing)
 
 | File | Exists | Permissions | Path |
 |------|--------|-------------|------|
-| CA Bundle | {{ 'YES' if platform_mongodb_ca_stat.stat.exists | default(false) else 'NO' }} | {{ platform_mongodb_ca_stat.stat.mode | default('N/A') }} | {{ platform_mongodb_ca_dest }} |
+| CA Bundle | {{ 'YES' if (platform_mongodb_ca_stat.stat is defined and platform_mongodb_ca_stat.stat.exists) else 'NO' }} | {{ platform_mongodb_ca_stat.stat.mode if platform_mongodb_ca_stat.stat is defined else 'N/A' }} | {{ platform_mongodb_ca_dest }} |
 
-{% if platform_mongodb_ca_stat is defined and platform_mongodb_ca_stat.stat.exists | default(false) %}
+{% if platform_mongodb_ca_stat is defined and platform_mongodb_ca_stat.stat is defined and platform_mongodb_ca_stat.stat.exists %}
 #### CA Details
 
 - **Subject:** {{ platform_mongodb_ca_subject.stdout | default('N/A') }}
@@ -243,15 +243,15 @@ MongoDB TLS is disabled (`platform_mongo_tls_enabled: false`).
 
 ## Log Files
 
-{% if platform_log_file is defined and platform_log_file_stat.stat.exists %}
+{% if platform_log_file is defined and platform_log_file_stat.stat is defined and platform_log_file_stat.stat.exists %}
 - **Log files exist:** YES ✓
-- **Log files permissions:** {{ platform_log_file_stat.stat.mode }}
+- **Log files permissions:** {{ platform_log_file_stat.stat.mode | default('N/A') }}
 {% else %}
 - **Log files exist:** NO ✗
 {% endif %}
-{% if platform_web_log_file is defined and platform_web_log_file_stat.stat.exists %}
+{% if platform_web_log_file is defined and platform_web_log_file_stat.stat is defined and platform_web_log_file_stat.stat.exists %}
 - **Web log files exist:** YES ✓
-- **Web log files permissions:** {{ platform_web_log_file_stat.stat.mode }}
+- **Web log files permissions:** {{ platform_web_log_file_stat.stat.mode | default('N/A') }}
 {% else %}
 - **Web log files exist:** NO ✗
 {% endif %}
