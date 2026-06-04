@@ -125,6 +125,9 @@
     login_database: admin
     login_host: "{{ inventory_hostname }}"
     login_port: "{{ mongodb_port }}"
+    tls_enabled: "{{ mongodb_tls_enabled }}"
+    tls_ca_file: "{{ mongodb_tls_ca_dest }}"
+    tls_cert_key_file: "{{ mongodb_tls_cert_dest }}"
   register: mongodb_state
   vars:
     ansible_python_interpreter: "{{ mongodb_python_venv }}/bin/python3"
