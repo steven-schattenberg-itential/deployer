@@ -462,6 +462,10 @@
 # ============================================================================
 # GENERATE REPORT
 # ============================================================================
+- name: Set arbiter fact from inventory group membership
+  ansible.builtin.set_fact:
+    mongodb_is_arbiter: "{{ 'mongodb_arbiter' in group_names }}"
+
 - name: Generate MongoDB validation report
   ansible.builtin.template:
     backup: true

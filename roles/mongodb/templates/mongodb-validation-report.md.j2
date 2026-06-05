@@ -395,7 +395,7 @@ Replica set not configured ✗
 {% endif %}
 {% if mongodb_replset_name.stdout is defined and mongodb_replset_name.stdout != "" %}
 - **Replica Set Configured:** YES ✓
-- **Replica Set Status:** {{ 'OK ✓' if (mongodb_replset_status is defined and mongodb_replset_status.rc == 0) else 'FAILED ✗' }}
+- **Replica Set Status:** {{ 'N/A (arbiter)' if mongodb_is_arbiter | default(false) | bool else ('OK ✓' if (mongodb_replset_status is defined and mongodb_replset_status.rc == 0) else 'FAILED ✗') }}
 {% else %}
 - **Replica Set Configured:** NO ✗
 {% endif %}

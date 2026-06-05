@@ -406,7 +406,12 @@ No Sentinel users were found!
 
 ## Validation Summary
 
+{% if sentinel_service_status is defined and sentinel_service_status.status is defined
+    and (redis_service_status is not defined or redis_service_status.status is not defined) %}
+**Overall Status:** {{ 'PASSED ✓' if (sentinel_ping is defined and sentinel_ping.rc == 0 and sentinel_process is defined and sentinel_process.rc == 0) else 'FAILED' }}
+{% else %}
 **Overall Status:** {{ 'PASSED ✓' if (redis_ping is defined and redis_ping.rc == 0 and redis_process is defined and redis_process.rc == 0) else 'FAILED' }}
+{% endif %}
 
 ### Checks:
 
