@@ -27,14 +27,11 @@ redis_tls_key_file: "{{ inventory_hostname }}.key"
 # Redis CA certificate filename
 redis_tls_ca_file: ca-bundle.crt
 
-# Redis DH parameters filename
-redis_tls_dh_params_file: dhparams.pem
-
 # Redis Sentinel certificate filename
-redis_sentinel_tls_cert_file: sentinel.crt
+redis_sentinel_tls_cert_file: "{{ inventory_hostname }}.crt"
 
 # Redis Sentinel private key filename
-redis_sentinel_tls_key_file: sentinel.key
+redis_sentinel_tls_key_file: "{{ inventory_hostname }}.key"
 
 # ============================================================================
 # Source Directory - Define in inventory
@@ -56,9 +53,6 @@ redis_tls_key_src: "{{ redis_pki_src_dir }}/{{ redis_tls_key_file }}"
 # Redis CA certificate source path
 redis_tls_ca_src: "{{ redis_pki_src_dir }}/{{ redis_tls_ca_file }}"
 
-# Redis DH parameters source path
-redis_tls_dh_params_src: "{{ redis_pki_src_dir }}/{{ redis_tls_dh_params_file }}"
-
 # Sentinel certificate source path
 redis_sentinel_tls_cert_src: "{{ redis_pki_src_dir }}/{{ redis_sentinel_tls_cert_file }}"
 
@@ -77,9 +71,6 @@ redis_tls_key_dest: "{{ redis_pki_private_dir }}/{{ redis_tls_key_file }}"
 
 # Redis CA certificate destination path
 redis_tls_ca_dest: "{{ redis_pki_base_dir }}/{{ redis_tls_ca_file }}"
-
-# Redis DH parameters destination path
-redis_tls_dh_params_dest: "{{ redis_pki_base_dir }}/{{ redis_tls_dh_params_file }}"
 
 # Sentinel certificate destination path
 redis_sentinel_tls_cert_dest: "{{ redis_pki_base_dir }}/{{ redis_sentinel_tls_cert_file }}"

@@ -35,6 +35,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --user admin \
       -p {{ redis_sentinel_port }} \
       -h "{{ inventory_hostname }}" \
@@ -66,6 +67,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --json \
       --user admin \
       -p {{ redis_sentinel_port }} \
@@ -81,6 +83,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --json \
       --user admin \
       -p {{ redis_sentinel_port }} \
@@ -101,6 +104,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --json \
       --user admin \
       -p {{ redis_sentinel_port }} \
@@ -121,6 +125,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --json \
       --user admin \
       -p {{ redis_sentinel_port }} \
@@ -142,6 +147,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --json \
       --user admin \
       -p {{ redis_sentinel_port }} \
@@ -163,6 +169,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --json \
       --user admin \
       -p {{ redis_sentinel_port }} \
@@ -184,6 +191,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --json \
       --user admin \
       -p {{ redis_sentinel_port }} \
@@ -264,6 +272,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --json \
       --user admin \
       -p {{ redis_sentinel_port }} \
@@ -301,6 +310,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --user sentineluser \
       -p {{ redis_sentinel_port }} \
       -h "{{ inventory_hostname }}" \
@@ -320,6 +330,7 @@
   ansible.builtin.shell: |
     set -o pipefail &&
     {{ redis_bin_dir }}/redis-cli \
+      {% if redis_tls_enabled | bool %}--tls --cacert {{ redis_tls_ca_dest }}{% endif %} \
       --user monitor \
       -p {{ redis_sentinel_port }} \
       -h "{{ inventory_hostname }}" \
@@ -350,7 +361,7 @@
 
 - name: Copy validation report to the control node
   ansible.builtin.fetch:
-    dest: "{{ redis_certify_report_dir_local }}/"
+    dest: "{{ redis_sentinel_certify_report_dir_local }}/"
     fail_on_missing: false
     flat: true
     src: "{{ redis_sentinel_certify_report_file }}"
@@ -361,7 +372,7 @@
   ansible.builtin.debug:
     msg:
       - "Redis validation complete for {{ inventory_hostname }}"
-      - "Overall Status: {{ 'PASSED ✓' if (redis_ping.rc == 0 and redis_process.rc == 0) else 'FAILED ✗' }}"
+      - "Overall Status: {{ 'PASSED ✓' if (sentinel_ping.rc == 0 and sentinel_process.rc == 0) else 'FAILED ✗' }}"
       - "Report saved to: {{ redis_sentinel_certify_report_file }} on both the remote and control nodes."
   when:
     - sentinel_is_running | bool

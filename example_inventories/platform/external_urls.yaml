@@ -35,5 +35,6 @@ all:
         # NOTE: Using Ansible Vault or Hashicorp Vault for passwords is highly recommended.
         platform_redis_username: <elasticache-username>
         platform_redis_password: <elasticache-password>
-        platform_redis_tls: "{}"
+        platform_redis_tls: {}
+        platform_redis_copy_certs: false
         platform_redis_host: <cluster-name>.<id>.<region>.cache.amazonaws.com

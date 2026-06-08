@@ -45,9 +45,40 @@ all:
         redis_user_sentineluser_password: <redis-sentineluser-password>
         redis_user_monitor_password: <redis-monitor-password>
 
-    mongodb:
+        # By default, TLS is enabled for Redis and Sentinel.
+        # redis_tls_enabled: true
+
+        # When uploading certs/keys, the source directory on the control node must be defined.
+        redis_pki_src_dir: </path/to/certs/on/control/node>
+
+        # The following TLS-related variables can be overridden.
+        # redis_pki_base_dir: /etc/pki/redis
+        # redis_pki_private_subdir: private
+        # redis_pki_private_dir: "{{ redis_pki_base_dir }}/{{ redis_pki_private_subdir }}"
+        # redis_tls_cert_file: "{{ inventory_hostname }}.crt"
+        # redis_tls_key_file: "{{ inventory_hostname }}.key"
+        # redis_tls_ca_file: ca-bundle.crt
+        # redis_sentinel_tls_cert_file: "{{ inventory_hostname }}.crt"
+        # redis_sentinel_tls_key_file: "{{ inventory_hostname }}.key"
+        # redis_tls_cert_dest: "{{ redis_pki_base_dir }}/{{ redis_tls_cert_file }}"
+        # redis_tls_key_dest: "{{ redis_pki_private_dir }}/{{ redis_tls_key_file }}"
+        # redis_tls_ca_dest: "{{ redis_pki_base_dir }}/{{ redis_tls_ca_file }}"
+        # redis_sentinel_tls_cert_dest: "{{ redis_pki_base_dir }}/{{ redis_sentinel_tls_cert_file }}"
+        # redis_sentinel_tls_key_dest: "{{ redis_pki_private_dir }}/{{ redis_sentinel_tls_key_file }}"
+        # redis_tls_cert_src: "{{ redis_pki_src_dir }}/{{ redis_tls_cert_file }}"
+        # redis_tls_key_src: "{{ redis_pki_src_dir }}/{{ redis_tls_key_file }}"
+        # redis_tls_ca_src: "{{ redis_pki_src_dir }}/{{ redis_tls_ca_file }}"
+        # redis_sentinel_tls_cert_src: "{{ redis_pki_src_dir }}/{{ redis_sentinel_tls_cert_file }}"
+        # redis_sentinel_tls_key_src: "{{ redis_pki_src_dir }}/{{ redis_sentinel_tls_key_file }}"
+        # redis_tls_auth_clients: "no"
+        # redis_tls_protocols: TLSv1.3
+
+    mongodb_primary:
       hosts:
         mongodb-data01.dc1.example.com:
+
+    mongodb_replica:
+      hosts:
         mongodb-data02.dc1.example.com:
         mongodb-data01.dc2.example.com:
         mongodb-data02.dc2.example.com:
@@ -56,17 +87,13 @@ all:
       hosts:
         mongodb-arbiter01.dc3.example.com:
 
-    mongodb_nodes:
+    mongodb_node:
       hosts:
         mongodb-data01.dc1.example.com:
         mongodb-data02.dc1.example.com:
         mongodb-data01.dc2.example.com:
         mongodb-data02.dc2.example.com:
-        mongodb-arbiter01.dc3.example.com:
       vars:
-        # Enable replication between the MongoDB nodes.
-        mongodb_replication_enabled: true
-
         # The default MongoDB passwords are overridden.
         # NOTE: Using Ansible Vault or Hashicorp Vault for passwords is highly recommended.
         mongodb_user_admin_password: <mongodb-admin-password>
@@ -112,11 +139,22 @@ all:
         # When uploading certs/keys, the source directories on the control node must be defined.
         platform_https_pki_src_dir: </path/to/platform/https/certs/on/control/node>
         platform_mongodb_pki_src_dir: </path/to/platform/mongodb/certs/on/control/node>
+        platform_redis_pki_src_dir: </path/to/redis/certs/on/control/node>
 
         # The default MongoDB username, database name are used and TLS is enabled.
         # platform_mongo_user: itential
         # platform_mongo_db_name: itential
         # platform_mongo_tls_enabled: true
+
+        # By default, Redis TLS is enabled and the Redis CA cert is copied to the Platform node.
+        # platform_redis_tls_enabled: true
+        # platform_redis_copy_certs: true
+
+        # The following Platform Redis TLS variables can be overridden.
+        # platform_redis_pki_dir: "{{ platform_pki_base_dir }}/redis"
+        # platform_redis_ca_file: ca-bundle.crt
+        # platform_redis_ca_dest: "{{ platform_redis_pki_dir }}/{{ platform_redis_ca_file }}"
+        # platform_redis_ca_src: "{{ platform_redis_pki_src_dir }}/{{ platform_redis_ca_file }}"
 
         # The MongoDB password and URL are overridden.
         platform_mongo_password: <mongodb-itential-password>

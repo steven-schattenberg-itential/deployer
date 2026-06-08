@@ -121,15 +121,89 @@ Redis INFO not available - check connectivity and authentication
 
 ## Configuration File
 
-- **Config File Exists:** {{ redis_conf_file.stat.exists | default('Unknown') if redis_conf_file is defined else 'Unknown' }}
-{% if redis_conf_file is defined and redis_conf_file.stat.exists %}
+- **Config File Exists:** {{ redis_conf_file.stat.exists if (redis_conf_file is defined and redis_conf_file.stat is defined) else 'Unknown' }}
+{% if redis_conf_file is defined and redis_conf_file.stat is defined and redis_conf_file.stat.exists %}
 - **Config File Path:** `/etc/redis/redis.conf`
 - **Permissions:** {{ redis_conf_permissions.stdout | default('Unknown') if redis_conf_permissions is defined else 'Unknown' }}
 {% endif %}
 
-- **Systemd Unit File:** {{ redis_systemd_file.stat.exists | default('Unknown') if redis_systemd_file is defined else 'Unknown' }}
-{% if redis_systemd_file is defined and redis_systemd_file.stat.exists %}
+- **Systemd Unit File:** {{ redis_systemd_file.stat.exists if (redis_systemd_file is defined and redis_systemd_file.stat is defined) else 'Unknown' }}
+{% if redis_systemd_file is defined and redis_systemd_file.stat is defined and redis_systemd_file.stat.exists %}
 - **Unit File Path:** `/etc/systemd/system/redis.service`
+{% endif %}
+
+---
+
+## TLS Certificates
+
+{% if redis_tls_enabled | bool %}
+- **TLS Status:** ENABLED
+
+#### Files
+
+| File | Exists | Permissions | Path |
+|------|--------|-------------|------|
+| Certificate | {{ 'YES' if (redis_tls_cert_stat is defined and redis_tls_cert_stat.stat is defined and redis_tls_cert_stat.stat.exists) else 'NO' }} | {{ redis_tls_cert_stat.stat.mode | default('N/A') if (redis_tls_cert_stat is defined and redis_tls_cert_stat.stat is defined and redis_tls_cert_stat.stat.exists) else 'N/A' }} | {{ redis_tls_cert_dest }} |
+| Private Key | {{ 'YES' if (redis_tls_key_stat is defined and redis_tls_key_stat.stat is defined and redis_tls_key_stat.stat.exists) else 'NO' }} | {{ redis_tls_key_stat.stat.mode | default('N/A') if (redis_tls_key_stat is defined and redis_tls_key_stat.stat is defined and redis_tls_key_stat.stat.exists) else 'N/A' }} | {{ redis_tls_key_dest }} |
+| CA Bundle | {{ 'YES' if (redis_tls_ca_stat is defined and redis_tls_ca_stat.stat is defined and redis_tls_ca_stat.stat.exists) else 'NO' }} | {{ redis_tls_ca_stat.stat.mode | default('N/A') if (redis_tls_ca_stat is defined and redis_tls_ca_stat.stat is defined and redis_tls_ca_stat.stat.exists) else 'N/A' }} | {{ redis_tls_ca_dest }} |
+
+{% if redis_tls_cert_stat is defined and redis_tls_cert_stat.stat is defined and redis_tls_cert_stat.stat.exists %}
+#### Certificate Details
+
+{% if redis_tls_cert_subject_issuer is defined and redis_tls_cert_subject_issuer.rc is defined and redis_tls_cert_subject_issuer.rc == 0 %}
+- **Subject:** {{ redis_tls_cert_subject_issuer.stdout_lines | select('match', '^subject') | first | default('Unknown') }}
+- **Issuer:** {{ redis_tls_cert_subject_issuer.stdout_lines | select('match', '^issuer') | first | default('Unknown') }}
+{% endif %}
+
+#### Validity
+
+{% if redis_tls_cert_dates is defined and redis_tls_cert_dates.rc is defined and redis_tls_cert_dates.rc == 0 %}
+- **Not Before:** {{ redis_tls_cert_dates.stdout | regex_search('notBefore=(.+)', '\\1') | first | default('Unknown') }}
+- **Not After:** {{ redis_tls_cert_dates.stdout | regex_search('notAfter=(.+)', '\\1') | first | default('Unknown') }}
+- **Expiry Warning:** {{ 'EXPIRES WITHIN 30 DAYS' if (redis_tls_cert_expiry_check is defined and redis_tls_cert_expiry_check.rc is defined and redis_tls_cert_expiry_check.rc == 1) else 'OK' }}
+{% endif %}
+
+#### Subject Alternative Names
+
+```
+{{ redis_tls_cert_sans.stdout | default('Not available') if (redis_tls_cert_sans is defined and redis_tls_cert_sans.rc is defined and redis_tls_cert_sans.rc == 0) else 'Not available' }}
+```
+
+- **inventory_hostname ({{ inventory_hostname }}) in SANs:** {{ 'YES' if (redis_tls_san_hostname_match is defined and redis_tls_san_hostname_match) else 'NO' }}
+- **ansible_host ({{ ansible_host }}) in SANs:** {{ 'YES' if (redis_tls_san_ip_match is defined and redis_tls_san_ip_match) else 'NO' }}
+
+#### Validation
+
+- **Cert-Key Match:** {{ 'YES' if (redis_tls_cert_key_match is defined and redis_tls_cert_key_match) else ('NOT CHECKED' if not (redis_tls_key_stat is defined and redis_tls_key_stat.stat is defined and redis_tls_key_stat.stat.exists) else 'FAILED') }}
+- **Chain Valid:** {{ 'YES' if (redis_tls_chain_valid is defined and redis_tls_chain_valid.rc is defined and redis_tls_chain_valid.rc == 0) else ('NOT CHECKED' if not (redis_tls_ca_stat is defined and redis_tls_ca_stat.stat is defined and redis_tls_ca_stat.stat.exists) else 'FAILED') }}
+
+{% endif %}
+
+{% if redis_tls_ca_stat is defined and redis_tls_ca_stat.stat is defined and redis_tls_ca_stat.stat.exists %}
+#### CA Bundle Validity
+
+{% if redis_tls_ca_dates is defined and redis_tls_ca_dates.rc is defined and redis_tls_ca_dates.rc == 0 %}
+- **Not Before:** {{ redis_tls_ca_dates.stdout | regex_search('notBefore=(.+)', '\\1') | first | default('Unknown') }}
+- **Not After:** {{ redis_tls_ca_dates.stdout | regex_search('notAfter=(.+)', '\\1') | first | default('Unknown') }}
+- **Expiry Warning:** {{ 'EXPIRES WITHIN 30 DAYS' if (redis_tls_ca_expiry_check is defined and redis_tls_ca_expiry_check.rc is defined and redis_tls_ca_expiry_check.rc == 1) else 'OK' }}
+{% endif %}
+
+{% endif %}
+
+#### Live TLS Handshake
+
+{% if redis_tls_handshake is defined and redis_tls_handshake.rc is defined %}
+Tested against: `{{ inventory_hostname }}:{{ redis_port }}`
+
+```
+{{ redis_tls_handshake.stdout | default('No output') }}
+```
+{% else %}
+Not tested (CA missing)
+{% endif %}
+
+{% else %}
+- **TLS Status:** DISABLED
 {% endif %}
 
 ---
@@ -147,9 +221,15 @@ Redis INFO not available - check connectivity and authentication
 ### User Connection Test Results:
 - **admin:** {{ 'PASSED ✓' if ((redis_ping.rc | default(-1)) == 0 and 'PONG' in (redis_ping.stdout | default(''))) else 'FAILED ✗' }}
 - **itential:** {{ 'PASSED ✓' if ((redis_itential_user_ping.rc | default(-1)) == 0 and 'PONG' in (redis_itential_user_ping.stdout | default(''))) else 'FAILED ✗' }}
+{% if redis_has_replicas | default(false) | bool %}
 - **repluser:** {{ 'PASSED ✓' if ((redis_repl_user_ping.rc | default(-1)) == 0 and 'PONG' in (redis_repl_user_ping.stdout | default(''))) else 'FAILED ✗' }}
+{% endif %}
+{% if redis_has_sentinels | default(false) | bool %}
 - **sentineluser:** {{ 'PASSED ✓' if ((redis_sentineluser_user_ping.rc | default(-1)) == 0 and 'PONG' in (redis_sentineluser_user_ping.stdout | default(''))) else 'FAILED ✗' }}
+{% endif %}
+{% if redis_monitor_user_enabled | default(false) | bool %}
 - **monitor:** {{ 'PASSED ✓' if ((redis_monitor_user_ping.rc | default(-1)) == 0 and 'PONG' in (redis_monitor_user_ping.stdout | default(''))) else 'FAILED ✗' }}
+{% endif %}
 {% else %}
 No Redis users were found!
 {% endif %}
@@ -281,14 +361,14 @@ No other Replicas were found!
 
 ## Sentinel Configuration File
 
-- **Config File Exists:** {{ sentinel_conf_file.stat.exists | default('Unknown') if sentinel_conf_file is defined else 'Unknown' }}
-{% if sentinel_conf_file is defined and sentinel_conf_file.stat.exists | default(false) %}
+- **Config File Exists:** {{ sentinel_conf_file.stat.exists if (sentinel_conf_file is defined and sentinel_conf_file.stat is defined) else 'Unknown' }}
+{% if sentinel_conf_file is defined and sentinel_conf_file.stat is defined and sentinel_conf_file.stat.exists %}
 - **Config File Path:** `/etc/redis/sentinel.conf`
 - **Permissions:** {{ sentinel_conf_permissions.stdout | default('Unknown') if sentinel_conf_permissions is defined else 'Unknown' }}
 {% endif %}
 
-- **Systemd Unit File:** {{ sentinel_systemd_file.stat.exists | default('Unknown') if sentinel_systemd_file is defined else 'Unknown' }}
-{% if sentinel_systemd_file is defined and sentinel_systemd_file.stat.exists | default(false) %}
+- **Systemd Unit File:** {{ sentinel_systemd_file.stat.exists if (sentinel_systemd_file is defined and sentinel_systemd_file.stat is defined) else 'Unknown' }}
+{% if sentinel_systemd_file is defined and sentinel_systemd_file.stat is defined and sentinel_systemd_file.stat.exists %}
 - **Unit File Path:** `/etc/systemd/system/redis-sentinel.service`
 {% endif %}
 
@@ -326,7 +406,12 @@ No Sentinel users were found!
 
 ## Validation Summary
 
+{% if sentinel_service_status is defined and sentinel_service_status.status is defined
+    and (redis_service_status is not defined or redis_service_status.status is not defined) %}
+**Overall Status:** {{ 'PASSED ✓' if (sentinel_ping is defined and sentinel_ping.rc == 0 and sentinel_process is defined and sentinel_process.rc == 0) else 'FAILED' }}
+{% else %}
 **Overall Status:** {{ 'PASSED ✓' if (redis_ping is defined and redis_ping.rc == 0 and redis_process is defined and redis_process.rc == 0) else 'FAILED' }}
+{% endif %}
 
 ### Checks:
 
@@ -338,13 +423,13 @@ No Sentinel users were found!
 {% endif %}
 - **Redis Process Running:** {{ 'YES' if (redis_process is defined and redis_process.rc == 0) else 'NO' }} {{ '✓' if (redis_process is defined and redis_process.rc == 0) else '✗' }}
 - **Redis Responding:** {{ 'YES' if (redis_ping is defined and redis_ping.rc == 0) else 'NO' }} {{ '✓' if (redis_ping is defined and redis_ping.rc == 0) else '✗' }}
-- **Redis Config File Present:** {{ 'YES' if (redis_conf_file is defined and redis_conf_file.stat.exists) else 'NO' }} {{ '✓' if (redis_conf_file is defined and redis_conf_file.stat.exists) else '✗' }}
+- **Redis Config File Present:** {{ 'YES' if (redis_conf_file is defined and redis_conf_file.stat is defined and redis_conf_file.stat.exists) else 'NO' }} {{ '✓' if (redis_conf_file is defined and redis_conf_file.stat is defined and redis_conf_file.stat.exists) else '✗' }}
 {% if sentinel_service_status is defined and sentinel_service_status.status is defined %}
 - **Sentinel Service Exists:** YES ✓
 - **Sentinel Service Active:** {{ sentinel_service_status.status.ActiveState | default('unknown') | upper }} {{ '✓' if sentinel_service_status.status.ActiveState == 'active' else '✗' }}
 - **Sentinel Process Running:** {{ 'YES' if (sentinel_process is defined and sentinel_process.rc == 0) else 'NO' }} {{ '✓' if (sentinel_process is defined and sentinel_process.rc == 0) else '✗' }}
 - **Sentinel Responding:** {{ 'YES' if (sentinel_ping is defined and sentinel_ping.rc == 0) else 'NO' }} {{ '✓' if (sentinel_ping is defined and sentinel_ping.rc == 0) else '✗' }}
-- **Sentinel Config File Present:** {{ 'YES' if (sentinel_conf_file is defined and sentinel_conf_file.stat.exists | default(false)) else 'NO' }} {{ '✓' if (sentinel_conf_file is defined and sentinel_conf_file.stat.exists | default(false)) else '✗' }}
+- **Sentinel Config File Present:** {{ 'YES' if (sentinel_conf_file is defined and sentinel_conf_file.stat is defined and sentinel_conf_file.stat.exists) else 'NO' }} {{ '✓' if (sentinel_conf_file is defined and sentinel_conf_file.stat is defined and sentinel_conf_file.stat.exists) else '✗' }}
 - **Sentinel Monitoring:** {{ ([itential_master.name] if itential_master is defined and itential_master.name is defined else []) | length }} master(s) {{ '✓' if (itential_master is defined and itential_master.name is defined) else '✗' }}
 - **Sentinel Quorum:** {{ 'OK' if (quorum_check_details is defined and 'OK' in quorum_check_details) else 'FAILED' }} {{ '✓' if (quorum_check_details is defined and 'OK' in quorum_check_details) else '✗' }}
 {% else %}

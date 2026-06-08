@@ -108,7 +108,9 @@ Installs and configures Itential Platform (IAP). Handles OS user/directory setup
 | `platform_redis_sentinel_username` | `sentineluser` | Sentinel username |
 | `platform_redis_sentinel_password` | `sentineluser` | Sentinel password |
 | `platform_redis_name` | `itentialmaster` | Redis primary name (must match `redis_sentinel_master_name`) |
+| `platform_redis_tls_enabled` | `true` | Enable TLS for both the Redis data connection and the Sentinel connection |
 | `platform_redis_tls` | (empty) | TLS options dict for NodeJS Redis client |
+| `platform_redis_sentinel_tls` | (empty) | TLS options dict for Sentinel connection; used when `platform_redis_tls_enabled: true` |
 
 ### pki.yml defaults (TLS paths)
 
@@ -118,14 +120,20 @@ Installs and configures Itential Platform (IAP). Handles OS user/directory setup
 | `platform_pki_https_dir` | `{{ platform_pki_base_dir }}/https` | HTTPS cert subdirectory |
 | `platform_pki_private_dir` | `{{ platform_pki_base_dir }}/private` | Private key subdirectory |
 | `platform_mongodb_pki_dir` | `{{ platform_pki_base_dir }}/mongodb` | MongoDB client cert subdirectory |
+| `platform_redis_pki_dir` | `{{ platform_pki_base_dir }}/redis` | Redis client cert subdirectory |
 | `platform_webserver_https_copy_certs` | `true` | Copy HTTPS certs from control node |
 | `platform_mongodb_copy_certs` | `true` | Copy MongoDB CA from control node |
+| `platform_redis_copy_certs` | `true` | Copy Redis CA from control node |
 | `platform_https_cert_file` | `{{ inventory_hostname }}.crt` | HTTPS cert filename |
 | `platform_https_key_file` | `{{ inventory_hostname }}.key` | HTTPS key filename |
 | `platform_https_ca_file` | `ca-bundle.crt` | HTTPS CA bundle filename |
 | `platform_mongodb_ca_file` | `ca-bundle.crt` | MongoDB CA bundle filename |
+| `platform_redis_ca_file` | `ca-bundle.crt` | Redis CA bundle filename |
 | `platform_https_pki_src_dir` | `""` | HTTPS cert source dir on control node |
 | `platform_mongodb_pki_src_dir` | `""` | MongoDB cert source dir on control node |
+| `platform_redis_pki_src_dir` | `""` | Redis cert source dir on control node |
+| `platform_redis_ca_src` | `{{ platform_redis_pki_src_dir }}/{{ platform_redis_ca_file }}` | Redis CA source path on control node |
+| `platform_redis_ca_dest` | `{{ platform_redis_pki_dir }}/{{ platform_redis_ca_file }}` | Redis CA destination path on target |
 | `platform_mongo_tls_ca_file` | `{{ platform_mongodb_ca_dest }}` or `""` | CA file path in properties (empty when TLS disabled) |
 
 ### authentication.yml defaults
@@ -227,6 +235,16 @@ Hardware specs for `verify` playbook (`platform_hw_specs`):
 - `platform_encryption_key` is a mandatory 64-char hex string. The validate-vars task fails fast if missing or malformed.
 - `platform_packages` must be either local RPM filenames (relative to `playbook_dir/files/`) or full HTTP/HTTPS URLs. Mixed lists are not supported.
 - When using repository download (`gateway_archive_download_url`-style for Platform), set `repository_username`/`repository_password` or `repository_api_key`.
+
+## Certify Behavior (certify-platform.yml)
+
+`certify-platform.yml` runs on all hosts in `platform*` (both `platform` and `platform_secondary`). Each host produces its own report.
+
+**Connectivity checks:** The HTTP and HTTPS health endpoint tasks use `failed_when: false` and return without a `.json` attribute when Platform is down or not yet listening. The downstream MongoDB and Redis connectivity `set_fact` tasks are guarded by `platform_http_health_check.json is defined` and `platform_https_health_check.json is defined`. When Platform is unreachable, connectivity flags remain `false` (initialized earlier) rather than crashing the play.
+
+**Redis TLS for Platform:** Platform requires its own Redis CA cert at `platform_redis_ca_dest` when `platform_redis_tls_enabled: true`. Set `platform_redis_pki_src_dir` in the inventory to enable cert copy. Without it, `platform.properties` will have `redis_tls` commented out and Platform will fail to connect to a TLS-only Redis.
+
+**Multi-host:** The play runs on `hosts: platform*`, so all Platform nodes are certified in parallel. Each host is checked independently using its own `inventory_hostname` and `ansible_host`.
 
 ## Gotchas
 

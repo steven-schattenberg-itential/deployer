@@ -12,11 +12,13 @@ platform_pki_base_dir: /etc/pki/itential-platform
 platform_pki_private_subdir: private
 platform_pki_https_subdir: https
 platform_pki_mongodb_subdir: mongodb
+platform_pki_redis_subdir: redis
 
 # Derived subdirectory paths - built from base + subdir name
 platform_pki_private_dir: "{{ platform_pki_base_dir }}/{{ platform_pki_private_subdir }}"
 platform_pki_https_dir: "{{ platform_pki_base_dir }}/{{ platform_pki_https_subdir }}"
 platform_mongodb_pki_dir: "{{ platform_pki_base_dir }}/{{ platform_pki_mongodb_subdir }}"
+platform_redis_pki_dir: "{{ platform_pki_base_dir }}/{{ platform_pki_redis_subdir }}"
 
 # ============================================================================
 # PKI Management Flags - Control certificate deployment
@@ -33,6 +35,12 @@ platform_webserver_https_copy_certs: true
 # When true: Creates PKI directories and copies MongoDB client certificate files
 # When false: Assumes MongoDB client certificates are managed externally
 platform_mongodb_copy_certs: true
+
+# Flag to manage Redis client PKI infrastructure
+# Enabling this by default to ensure secure communication, can be disabled if certificates are managed externally
+# When true: Creates PKI directories and copies Redis CA certificate file
+# When false: Assumes Redis certificates are managed externally
+platform_redis_copy_certs: true
 
 # ============================================================================
 # HTTPS Certificate Filenames - Customize naming
@@ -75,6 +83,20 @@ platform_mongodb_ca_file: ca-bundle.crt
 platform_mongodb_ca_dest: "{{ platform_mongodb_pki_dir }}/{{ platform_mongodb_ca_file }}"
 
 # ============================================================================
+# Redis Client Certificate Filenames - Customize naming
+# ============================================================================
+
+# Redis CA certificate filename
+platform_redis_ca_file: ca-bundle.crt
+
+# ============================================================================
+# Redis Client Full Certificate Paths - Built from components
+# ============================================================================
+
+# Redis CA certificate path (used to validate Redis server)
+platform_redis_ca_dest: "{{ platform_redis_pki_dir }}/{{ platform_redis_ca_file }}"
+
+# ============================================================================
 # Application Configuration Mappings
 # These map to the paths expected by Platform's properties.json
 # ============================================================================
@@ -93,6 +115,9 @@ platform_https_pki_src_dir: ""
 # Source directory for MongoDB certificates (on Ansible controller)
 platform_mongodb_pki_src_dir: ""
 
+# Source directory for Redis certificates (on Ansible controller)
+platform_redis_pki_src_dir: ""
+
 # ============================================================================
 # Source File Paths - Built from source directory + filename
 # ============================================================================
@@ -104,6 +129,9 @@ platform_https_ca_src: "{{ platform_https_pki_src_dir }}/{{ platform_https_ca_fi
 
 # MongoDB client source paths - auto-build from source dir + filename
 platform_mongodb_ca_src: "{{ platform_mongodb_pki_src_dir }}/{{ platform_mongodb_ca_file }}"
+
+# Redis client source paths - auto-build from source dir + filename
+platform_redis_ca_src: "{{ platform_redis_pki_src_dir }}/{{ platform_redis_ca_file }}"
 
 # ============================================================================
 # File Ownership - Customize per environment

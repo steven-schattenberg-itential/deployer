@@ -58,7 +58,7 @@ Installs and configures Redis and Redis Sentinel for use with Itential Platform.
 | `redis_maxmemory_min_mb` | `512` | Minimum maxmemory floor (MB) |
 | `redis_tls_port` | `6379` (default; see pki.yml for TLS port) | TLS port |
 | `redis_tls_auth_clients` | `no` | Whether to require client certificates |
-| `redis_tls_protocols` | `TLSv1.2 TLSv1.3` | Allowed TLS protocol versions |
+| `redis_tls_protocols` | `TLSv1.3` | Allowed TLS protocol versions |
 | `redis_certify_report_dir_remote` | `/var/tmp/itential-reports/redis` | Cert report dir on target |
 | `redis_certify_report_dir_local` | `/tmp/itential-reports/redis` | Cert report dir on control node |
 
@@ -94,9 +94,8 @@ Installs and configures Redis and Redis Sentinel for use with Itential Platform.
 | `redis_tls_cert_file` | `{{ inventory_hostname }}.crt` | Server cert filename |
 | `redis_tls_key_file` | `{{ inventory_hostname }}.key` | Server key filename |
 | `redis_tls_ca_file` | `ca-bundle.crt` | CA bundle filename |
-| `redis_tls_dh_params_file` | `dhparams.pem` | DH params filename |
-| `redis_sentinel_tls_cert_file` | `sentinel.crt` | Sentinel cert filename |
-| `redis_sentinel_tls_key_file` | `sentinel.key` | Sentinel key filename |
+| `redis_sentinel_tls_cert_file` | `{{ inventory_hostname }}.crt` | Sentinel cert filename |
+| `redis_sentinel_tls_key_file` | `{{ inventory_hostname }}.key` | Sentinel key filename |
 | `redis_pki_src_dir` | `""` | Source directory on control node (required when TLS enabled) |
 | `redis_pki_owner` | `redis` | File/dir owner |
 | `redis_pki_group` | `redis` | File/dir group |
@@ -110,7 +109,7 @@ TLS is **disabled by default** (`redis_tls_enabled: false`).
 Flow (`configure-redis-tls.yml`, runs when `redis_tls_enabled: true`):
 1. Create `redis_pki_base_dir` (mode `0750`)
 2. Create `redis_pki_private_dir` (mode `0700`)
-3. Copy server cert, server key, CA bundle, DH params from control node (each conditional on source path being non-empty)
+3. Copy server cert, server key, and CA bundle from control node (each conditional on source path being non-empty)
 4. Each copy notifies `restart redis`
 
 The `redis.conf.j2` template includes TLS configuration blocks when `redis_tls_enabled: true`. Sentinel TLS certs (`sentinel.crt`, `sentinel.key`) are expected in `redis_pki_src_dir` when using TLS with Sentinel.
@@ -171,6 +170,23 @@ Hardware specs for `verify` playbook (`redis_hw_specs`):
 - The `os` role should be applied before `redis` to ensure SELinux tools and build tools are available.
 - `redis_master` group must always have at least one member — `redis_replicaof` and sentinel config reference `groups['redis_master'][0]`.
 - When `redis_install_from_source: true`, build packages (`gcc`, `make`, `systemd-devel`, etc.) are installed, used for compilation, then removed. Offline mode requires these pre-staged in `redis_offline_control_node_rpms_dir/build/`.
+
+## Certify Behavior (certify-redis.yml / certify-sentinel.yml)
+
+`certify-redis.yml` runs on `redis_master` and `redis_replica` hosts. `certify-sentinel.yml` runs on `redis_sentinel` hosts.
+
+**TLS-aware redis-cli:** All `redis-cli` commands use a `redis_cli_tls_args` fact set early in the task file. When `redis_tls_enabled: true` this expands to `--tls --cacert {{ redis_tls_ca_dest }}`; when false it is an empty string. No separate task variants are needed.
+
+**Topology-aware user tests:** The certify sets `redis_has_replicas` and `redis_has_sentinels` facts using the same group-membership expressions as `main.yml`. User login tests are gated on those facts:
+- `repluser` — only tested when `redis_has_replicas` is true
+- `sentineluser` — only tested when `redis_has_sentinels` is true
+- `monitor` — only tested when `redis_monitor_user_enabled: true`
+
+In an AIO or standalone deployment (no replica or sentinel groups), those tests are skipped and omitted from the report — they do not count as failures.
+
+**TLS section:** When `redis_tls_enabled: false` the entire TLS section collapses to `- **TLS Status:** DISABLED`. No TLS variables are referenced, so the report is valid for non-TLS deployments.
+
+**Overall status** is determined solely by `redis_ping.rc == 0` (connectivity) and `redis_process.rc == 0` (process running). TLS checks are informational and do not affect the PASSED/FAILED line.
 
 ## Gotchas
 
