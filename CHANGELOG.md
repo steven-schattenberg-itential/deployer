@@ -1,9 +1,17 @@
 # Changelog
 
-## v3.7.2 (January 09, 2026)
+## v4.0.0 (May 22, 2026)
+
+* Release V4  https://github.com/itential/itential.deployer/pull/337
+
+Full Changelog: https://github.com/itential/itential.deployer/compare/v3.7.2...v4.0.0 
+
+
+## v3.7.2 (January 20, 2026)
 
 * Added retries to epel repo install task https://github.com/itential/itential.deployer/pull/285
 * Change Gateway offline install method to use pip wheel/download  https://github.com/itential/itential.deployer/pull/287
+* Update galaxy version and changelog for release 3.7.2 [skip ci]
 * Update repository descriptions in README  https://github.com/itential/itential.deployer/pull/283
 * added support for TLS 1.3  https://github.com/itential/itential.deployer/pull/284
 
